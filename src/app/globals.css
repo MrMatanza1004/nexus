@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #7c3aed;
+  --primary-dark: #6d28d9;
+  --primary-light: #a78bfa;
+  --secondary: #0f172a;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text: #1e293b;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  }
+  .gradient-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #7c3aed 100%);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+  }
+  .card-hover {
+    @apply hover:shadow-md hover:border-slate-300 transition-all duration-200;
+  }
+  .btn-primary {
+    @apply bg-violet-600 hover:bg-violet-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  .btn-secondary {
+    @apply bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200;
+  }
+  .btn-outline {
+    @apply border-2 border-violet-600 text-violet-600 hover:bg-violet-50 font-medium px-6 py-3 rounded-lg transition-all duration-200;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none transition-all;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200;
+  }
+  .sidebar-link-active {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white transition-all duration-200;
+  }
+}
+
+.badge {
+  @apply px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+.badge-success {
+  @apply bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+.badge-warning {
+  @apply bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+.badge-danger {
+  @apply bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+.badge-info {
+  @apply bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+.social-proof-enter { animation: slideIn 0.5s ease-out; }
+.social-proof-exit { animation: slideOut 0.5s ease-in; }
+
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--accent); }
+  50% { border-color: var(--danger); }
+}
+.countdown-active { animation: pulse-border 2s infinite; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  min-height: 120px;
+  outline: none;
+  padding: 0;
+  line-height: 1.6;
+}
+.ProseMirror p { margin: 0.5em 0; }
+.ProseMirror h1 { font-size: 1.5rem; font-weight: 700; margin: 1em 0 0.5em; }
+.ProseMirror h2 { font-size: 1.25rem; font-weight: 600; margin: 0.8em 0 0.4em; }
+.ProseMirror h3 { font-size: 1.1rem; font-weight: 600; margin: 0.6em 0 0.3em; }
+.ProseMirror ul, .ProseMirror ol { padding-left: 1.5em; margin: 0.5em 0; }
+.ProseMirror li { margin: 0.2em 0; }
+.ProseMirror pre {
+  background: #1e293b; color: #e2e8f0; border-radius: 8px;
+  padding: 12px; font-size: 13px; overflow-x: auto; margin: 0.8em 0;
+}
+.ProseMirror code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+.ProseMirror p > code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+.ProseMirror blockquote {
+  border-left: 3px solid #7c3aed; padding-left: 12px; margin: 0.8em 0;
+  color: #64748b; font-style: italic;
+}
+.ProseMirror hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5em 0; }
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+.ProseMirror strong { font-weight: 600; }
+.ProseMirror em { font-style: italic; }
+.ProseMirror s { text-decoration: line-through; }
