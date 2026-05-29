@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Force turbopack cache invalidation
+import { BUILD_FRESH } from './supabase-fix'
+
 let supabaseClient = null
 let serviceClient = null
+void BUILD_FRESH
 
 export function getSupabase() {
   if (!supabaseClient) {
