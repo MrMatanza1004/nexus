@@ -23,11 +23,24 @@ export function getServiceSupabase() {
   return serviceClient
 }
 
-// Proxy-based lazy init for convenient access in components
+// Proxy-based lazy init for convenient access in components.
+// Returns null-safe stubs at any depth to prevent "is not a function" crashes
+// when env vars are unavailable (build cache, SSR, etc.)
+function createNullStub() {
+  return new Proxy(() => Promise.resolve({ data: null, error: null }), {
+    get(target, prop) {
+      if (prop === 'then' || prop === 'catch' || prop === 'finally') {
+        return target[prop]
+      }
+      return createNullStub()
+    }
+  })
+}
+
 export const supabase = new Proxy({}, {
   get(_, prop) {
     const client = getSupabase()
-    if (!client) return () => Promise.resolve({ data: null, error: null })
+    if (!client) return createNullStub()
     return client[prop]
   }
 })
