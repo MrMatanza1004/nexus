@@ -2,6 +2,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import SocialProof from '@/components/SocialProof'
 import { Toaster } from 'react-hot-toast'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata = {
   title: 'NEXUS - El Sistema Operativo de tu Negocio Freelance',
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
             },
           }}
         />
+        <Analytics />
       </body>
     </html>
   )
