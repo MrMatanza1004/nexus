@@ -1,13 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Force turbopack cache invalidation
-import { BUILD_FRESH } from './supabase-fix'
-
 let supabaseClient = null
 let serviceClient = null
-void BUILD_FRESH
 
-export function getSupabase() {
+function getSupabase() {
   if (!supabaseClient) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -17,7 +13,7 @@ export function getSupabase() {
   return supabaseClient
 }
 
-export function getServiceSupabase() {
+function getServiceSupabase() {
   if (!serviceClient) {
     serviceClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -27,24 +23,70 @@ export function getServiceSupabase() {
   return serviceClient
 }
 
-// Proxy-based lazy init for convenient access in components.
-// Returns null-safe stubs at any depth to prevent "is not a function" crashes
-// when env vars are unavailable (build cache, SSR, etc.)
-function createNullStub() {
-  return new Proxy(() => Promise.resolve({ data: null, error: null }), {
-    get(target, prop) {
-      if (prop === 'then' || prop === 'catch' || prop === 'finally') {
-        return target[prop]
-      }
-      return createNullStub()
+// Safe wrappers that never throw — return null data instead
+export async function safeGetSession() {
+  try {
+    const client = getSupabase()
+    if (!client) return { data: { session: null }, error: null }
+    const { data, error } = await client.auth.getSession()
+    if (error) return { data: { session: null }, error }
+    return { data, error: null }
+  } catch {
+    return { data: { session: null }, error: null }
+  }
+}
+
+export async function safeGetUser() {
+  try {
+    const client = getSupabase()
+    if (!client) return { data: { user: null }, error: null }
+    const { data, error } = await client.auth.getUser()
+    if (error) return { data: { user: null }, error }
+    return { data, error: null }
+  } catch {
+    return { data: { user: null }, error: null }
+  }
+}
+
+export async function safeSignOut() {
+  try {
+    const client = getSupabase()
+    if (!client) return { error: null }
+    return await client.auth.signOut()
+  } catch {
+    return { error: null }
+  }
+}
+
+export function onAuthChange(callback) {
+  try {
+    const client = getSupabase()
+    if (!client) {
+      callback(null)
+      return { subscription: { unsubscribe: () => {} } }
     }
-  })
+    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+      callback(session?.user ?? null)
+    })
+    return { subscription }
+  } catch {
+    callback(null)
+    return { subscription: { unsubscribe: () => {} } }
+  }
 }
 
 export const supabase = new Proxy({}, {
   get(_, prop) {
     const client = getSupabase()
-    if (!client) return createNullStub()
+    if (!client) {
+      // Return a function that resolves to empty data for any call
+      const stub = (...args) => Promise.resolve({ data: null, error: null })
+      // Make nested property access safe
+      stub.auth = { getSession: stub, getUser: stub, signOut: stub, onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }), signInWithPassword: stub, signUp: stub, signInWithOtp: stub, updateUser: stub }
+      stub.from = () => ({ select: stub, insert: stub, update: stub, delete: stub, eq: stub, order: stub, limit: stub, gte: stub, lte: stub })
+      stub.storage = { from: () => ({ upload: stub, getPublicUrl: stub, list: stub, remove: stub }) }
+      return stub
+    }
     return client[prop]
   }
 })

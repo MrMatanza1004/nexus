@@ -37,20 +37,24 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname()
 
   useEffect(() => {
+    let cancelled = false
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
+        if (cancelled) return
         if (!session) {
           router.push('/login')
           return
         }
         setUser(session.user)
-        setLoading(false)
       } catch {
-        setLoading(false)
+        // Silently fail, user stays null
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
     checkSession()
+    return () => { cancelled = true }
   }, [router])
 
   async function handleLogout() {
