@@ -13,20 +13,30 @@ export default function DashboardHome() {
   const [greeting, setGreeting] = useState('')
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user)
-      const h = new Date().getHours()
-      if (h < 12) setGreeting('Buenos días ☀️')
-      else if (h < 18) setGreeting('Buenas tardes 🌤️')
-      else setGreeting('Buenas noches 🌙')
-    })
+    try {
+      supabase.auth.getUser().then(({ data }) => {
+        setUser(data?.user ?? null)
+        const h = new Date().getHours()
+        if (h < 12) setGreeting('Buenos días ☀️')
+        else if (h < 18) setGreeting('Buenas tardes 🌤️')
+        else setGreeting('Buenas noches 🌙')
+      })
+    } catch {
+      setUser(null)
+    }
 
     loadStats()
     loadRecent()
   }, [])
 
   async function loadStats() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
 
     const [clients, tasks, invoices, projects] = await Promise.all([
@@ -50,7 +60,13 @@ export default function DashboardHome() {
   }
 
   async function loadRecent() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
 
     const { data: cls } = await supabase.from('clients').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5)

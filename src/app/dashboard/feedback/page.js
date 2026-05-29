@@ -15,7 +15,13 @@ export default function FeedbackPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [fRes, cRes] = await Promise.all([
       supabase.from('feedback_requests').select('*, clients(name), projects(name)').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -29,7 +35,14 @@ export default function FeedbackPage() {
   async function sendFeedbackRequest(e) {
     e.preventDefault()
     if (!form.client_id) return toast.error('Seleccioná un cliente')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const client = clients.find(c => c.id === form.client_id)
     const { error } = await supabase.from('feedback_requests').insert({
       user_id: user.id, client_id: form.client_id,

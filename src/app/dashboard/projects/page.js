@@ -22,7 +22,13 @@ export default function ProjectsPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [projRes, clientRes] = await Promise.all([
       supabase.from('projects').select('*, clients(name)').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -36,7 +42,14 @@ export default function ProjectsPage() {
   async function saveProject(e) {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('El nombre del proyecto es obligatorio')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { data, error } = await supabase.from('projects').insert({
       ...form, budget: form.budget ? Number(form.budget) : null, user_id: user.id,
     }).select('*, clients(name)')

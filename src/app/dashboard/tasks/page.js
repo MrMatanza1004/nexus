@@ -14,7 +14,13 @@ export default function TasksPage() {
   useEffect(() => { loadTasks() }, [])
 
   async function loadTasks() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const { data } = await supabase.from('tasks').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (data) setTasks(data)
@@ -23,7 +29,14 @@ export default function TasksPage() {
 
   async function addTask() {
     if (!newTask.title.trim()) return toast.error('Escribí un título para la tarea')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { data, error } = await supabase.from('tasks').insert({
       user_id: user.id,
       title: newTask.title,

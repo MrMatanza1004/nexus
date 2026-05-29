@@ -13,12 +13,16 @@ export default function AffiliatePage() {
   const [affiliateCode, setAffiliateCode] = useState('')
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user)
-      const code = data.user?.user_metadata?.affiliate_code
-      setAffiliateCode(code || '')
-      loadStats(data.user.id, code)
-    })
+    try {
+      supabase.auth.getUser().then(({ data }) => {
+        setUser(data?.user ?? null)
+        const code = data?.user?.user_metadata?.affiliate_code
+        setAffiliateCode(code || '')
+        if (data?.user?.id) loadStats(data.user.id, code)
+      })
+    } catch {
+      setUser(null)
+    }
   }, [])
 
   async function loadStats(userId, code) {

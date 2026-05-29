@@ -20,7 +20,13 @@ export default function TimePage() {
   }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [eRes, pRes] = await Promise.all([
       supabase.from('time_entries').select('*, projects(name)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50),
@@ -48,7 +54,14 @@ export default function TimePage() {
         <p className="font-medium mb-3">⏱️ Se registraron {duration}</p>
         <div className="flex gap-2">
           <button onClick={async () => {
-            const { data: { user } } = await supabase.auth.getUser()
+            let user
+            try {
+              const { data } = await supabase.auth.getUser()
+              user = data?.user
+            } catch {
+              user = null
+            }
+            if (!user) return
             await supabase.from('time_entries').insert({
               user_id: user.id, project_id: running,
               duration: seconds, description: 'Time tracking session',

@@ -16,7 +16,13 @@ export default function GoalsPage() {
   useEffect(() => { loadGoals() }, [])
 
   async function loadGoals() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const { data } = await supabase.from('goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (data) setGoals(data)
@@ -26,7 +32,14 @@ export default function GoalsPage() {
   async function saveGoal(e) {
     e.preventDefault()
     if (!form.title.trim()) return toast.error('Escribí un título')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { error } = await supabase.from('goals').insert({
       user_id: user.id, title: form.title,
       target_amount: Number(form.target_amount),

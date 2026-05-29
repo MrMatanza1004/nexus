@@ -18,7 +18,13 @@ export default function FilesPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [fRes, pRes, cRes] = await Promise.all([
       supabase.from('files').select('*, projects(name), clients(name)').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -36,7 +42,14 @@ export default function FilesPage() {
     if (!file) return
 
     setUploading(true)
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const fileExt = file.name.split('.').pop()
     const fileName = `${user.id}/${Date.now()}-${file.name}`
     const { error: uploadError } = await supabase.storage.from('centro-files').upload(fileName, file)

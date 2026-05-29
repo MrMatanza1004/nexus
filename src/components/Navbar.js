@@ -1,21 +1,35 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 export default function Navbar() {
   const [user, setUser] = useState(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const cleanupRef = useRef(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => subscription?.unsubscribe()
+    const initAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession()
+        setUser(data?.session?.user ?? null)
+      } catch {
+        setUser(null)
+      }
+    }
+    initAuth()
+
+    try {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+      })
+      cleanupRef.current = subscription
+    } catch {
+      // Silently fail if proxy returned stub
+    }
+
+    return () => cleanupRef.current?.unsubscribe()
   }, [])
 
   return (

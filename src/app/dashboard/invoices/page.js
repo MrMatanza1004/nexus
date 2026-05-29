@@ -16,7 +16,13 @@ export default function InvoicesPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [iRes, cRes] = await Promise.all([
       supabase.from('invoices').select('*, clients(name)').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -30,7 +36,14 @@ export default function InvoicesPage() {
   async function saveInvoice(e) {
     e.preventDefault()
     if (!form.amount) return toast.error('El monto es obligatorio')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const count = invoices.length
     const { data, error } = await supabase.from('invoices').insert({
       user_id: user.id, client_id: form.client_id || null,

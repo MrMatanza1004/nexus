@@ -16,7 +16,13 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    let error
+    try {
+      const res = await supabase.auth.signInWithPassword({ email, password })
+      error = res.error
+    } catch {
+      error = { message: 'Error de conexión con el servidor de autenticación' }
+    }
 
     if (error) {
       toast.error(error.message)
@@ -34,7 +40,13 @@ export default function LoginPage() {
       return
     }
     setLoading(true)
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    let error
+    try {
+      const res = await supabase.auth.signInWithOtp({ email })
+      error = res.error
+    } catch {
+      error = { message: 'Error de conexión con el servidor de autenticación' }
+    }
     if (error) {
       toast.error(error.message)
     } else {

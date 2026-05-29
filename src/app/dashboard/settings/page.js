@@ -12,27 +12,41 @@ export default function SettingsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user)
-      setName(data.user?.user_metadata?.full_name || '')
-    })
+    try {
+      supabase.auth.getUser().then(({ data }) => {
+        setUser(data?.user ?? null)
+        setName(data?.user?.user_metadata?.full_name || '')
+      })
+    } catch {
+      setUser(null)
+    }
   }, [])
 
   async function updateProfile(e) {
     e.preventDefault()
     setLoading(true)
-    const { error } = await supabase.auth.updateUser({
-      data: { full_name: name },
-    })
+    let error
+    try {
+      const res = await supabase.auth.updateUser({
+        data: { full_name: name },
+      })
+      error = res.error
+    } catch {
+      error = { message: 'Error de conexión con el servidor de autenticación' }
+    }
     if (error) toast.error(error.message)
     else toast.success('Perfil actualizado')
     setLoading(false)
   }
 
   async function handleLogout() {
-    await supabase.auth.signOut()
-    toast.success('Sesión cerrada')
-    router.push('/')
+    try {
+      await supabase.auth.signOut()
+      toast.success('Sesión cerrada')
+      router.push('/')
+    } catch {
+      // Silently fail if proxy returned stub
+    }
   }
 
   return (

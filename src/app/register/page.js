@@ -21,18 +21,25 @@ export default function RegisterPage() {
     const ref = document.cookie.split('; ').find(r => r.startsWith('nexus_ref='))
     const referredBy = ref ? ref.split('=')[1] : null
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          affiliate_code: generateAffiliateCode(),
-          referred_by: referredBy,
-          plan_type: 'trial',
+    let data, error
+    try {
+      const res = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            affiliate_code: generateAffiliateCode(),
+            referred_by: referredBy,
+            plan_type: 'trial',
+          },
         },
-      },
-    })
+      })
+      data = res.data
+      error = res.error
+    } catch {
+      error = { message: 'Error de conexión con el servidor de autenticación' }
+    }
 
     if (error) {
       toast.error(error.message)

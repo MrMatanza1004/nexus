@@ -16,7 +16,13 @@ export default function ClientsPage() {
   useEffect(() => { loadClients() }, [])
 
   async function loadClients() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const { data } = await supabase.from('clients').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (data) setClients(data)
@@ -26,7 +32,14 @@ export default function ClientsPage() {
   async function saveClient(e) {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('El nombre es obligatorio')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { data, error } = await supabase.from('clients').insert({ ...form, user_id: user.id }).select()
     if (error) return toast.error(error.message)
     setClients([data[0], ...clients])

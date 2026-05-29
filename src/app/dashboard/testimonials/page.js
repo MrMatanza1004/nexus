@@ -15,7 +15,13 @@ export default function TestimonialsPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [tRes, cRes] = await Promise.all([
       supabase.from('testimonials').select('*, clients(name)').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -29,7 +35,14 @@ export default function TestimonialsPage() {
   async function saveTestimonial(e) {
     e.preventDefault()
     if (!form.content.trim()) return toast.error('Escribí el testimonio')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { error } = await supabase.from('testimonials').insert({
       user_id: user.id, client_id: form.client_id || null,
       content: form.content, rating: form.rating, approved: false,

@@ -98,7 +98,13 @@ export default function PipelinePage() {
   useEffect(() => { loadLeads() }, [])
 
   async function loadLeads() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const { data } = await supabase.from('clients').select('*').eq('user_id', user.id).order('updated_at', { ascending: false })
     if (data) setLeads(data)
@@ -108,7 +114,14 @@ export default function PipelinePage() {
   async function addLead(e) {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('El nombre es obligatorio')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { data, error } = await supabase.from('clients').insert({
       name: form.name, email: form.email, company: form.company, notes: form.notes,
       pipeline_stage: form.pipeline_stage, user_id: user.id,

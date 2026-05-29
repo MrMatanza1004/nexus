@@ -37,20 +37,30 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        router.push('/login')
-        return
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          router.push('/login')
+          return
+        }
+        setUser(session.user)
+        setLoading(false)
+      } catch {
+        setLoading(false)
       }
-      setUser(session.user)
-      setLoading(false)
-    })
+    }
+    checkSession()
   }, [router])
 
   async function handleLogout() {
-    await supabase.auth.signOut()
-    toast.success('Sesión cerrada')
-    router.push('/')
+    try {
+      await supabase.auth.signOut()
+      toast.success('Sesión cerrada')
+      router.push('/')
+    } catch {
+      // Silently fail if proxy returned stub
+    }
   }
 
   if (loading) {

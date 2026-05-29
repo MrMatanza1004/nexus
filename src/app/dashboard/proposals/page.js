@@ -19,7 +19,13 @@ export default function ProposalsPage() {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const [pRes, cRes] = await Promise.all([
       supabase.from('proposals').select('*, clients(name)').eq('user_id', user.id).order('created_at', { ascending: false }),
@@ -61,7 +67,13 @@ export default function ProposalsPage() {
 
   async function saveProposal(e) {
     e.preventDefault()
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
 
     const payload = {

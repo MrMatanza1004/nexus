@@ -16,7 +16,13 @@ export default function NotesPage() {
   useEffect(() => { loadNotes() }, [])
 
   async function loadNotes() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const { data } = await supabase.from('notes').select('*').eq('user_id', user.id).order('updated_at', { ascending: false })
     if (data) setNotes(data)
@@ -26,7 +32,14 @@ export default function NotesPage() {
   async function saveNote(e) {
     e.preventDefault()
     if (!form.content || form.content === '<p></p>') return toast.error('La nota no puede estar vacía')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
 
     if (editing) {
       await supabase.from('notes').update({ ...form, tags: form.tags }).eq('id', editing)

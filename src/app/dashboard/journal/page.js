@@ -15,7 +15,13 @@ export default function JournalPage() {
   useEffect(() => { loadEntries() }, [])
 
   async function loadEntries() {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
     if (!user) return
     const { data } = await supabase.from('journal_entries').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (data) setEntries(data)
@@ -25,7 +31,14 @@ export default function JournalPage() {
   async function saveEntry(e) {
     e.preventDefault()
     if (!content || content === '<p></p>') return toast.error('Escribí algo en tu diario')
-    const { data: { user } } = await supabase.auth.getUser()
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
     const { data, error } = await supabase.from('journal_entries').insert({
       user_id: user.id,
       content,
