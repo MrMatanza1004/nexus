@@ -34,6 +34,8 @@ export async function GET() {
       proposals: proposals || 12500,
       totalInvoiced: totalInvoiced || 4200000,
       timestamp: new Date().toISOString(),
+    }, {
+      headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=600' },
     })
   } catch (err) {
     return NextResponse.json({

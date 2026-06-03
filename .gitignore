@@ -4,3 +4,9 @@ node_modules/
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+.vercel
+.atl/
+
+# Security: deploy scripts contain API keys
+deploy.sh
+deploy-with-secrets.sh

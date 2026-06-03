@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { formatDate, timeAgo } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import TipTapEditor from '@/components/TipTapEditor'
+import { generateWithAI } from '@/lib/ai'
 
 export default function NotesPage() {
   const [notes, setNotes] = useState([])
@@ -27,6 +28,35 @@ export default function NotesPage() {
     const { data } = await supabase.from('notes').select('*').eq('user_id', user.id).order('updated_at', { ascending: false })
     if (data) setNotes(data)
     setLoading(false)
+  }
+
+  // 🔥 AI Assist functions
+  async function aiAction(action) {
+    if (!form.content || form.content === '<p></p>') {
+      return toast.error('Primero escribí contenido en la nota')
+    }
+    const plainText = form.content.replace(/<[^>]*>/g, '').trim()
+    if (!plainText) return toast.error('Escribí contenido antes de usar IA')
+
+    const actionLabels = {
+      expand: 'Expandí este texto desarrollando más cada idea. Agregá ejemplos, detalles y profundizá el contenido.',
+      summarize: 'Resumí este texto manteniendo las ideas principales. Usá 3-4 oraciones máximo.',
+      improve: 'Mejorá la redacción de este texto. Hacelo más claro, profesional y fluido. Corregí errores si los hay.',
+      formal: 'Reescribí este texto en tono formal y profesional.',
+      casual: 'Reescribí este texto en tono casual y conversacional.',
+    }
+
+    const loading = toast.loading('🤖 IA trabajando...')
+    try {
+      const { result } = await generateWithAI('rewrite', `${actionLabels[action]}\n\nTexto:\n${plainText}`)
+      if (result) {
+        const htmlResult = `<p>${result.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
+        setForm({ ...form, content: htmlResult })
+        toast.success('✨ Nota mejorada con IA', { id: loading })
+      }
+    } catch (err) {
+      toast.error('Error: ' + err.message, { id: loading })
+    }
   }
 
   async function saveNote(e) {
@@ -92,6 +122,17 @@ export default function NotesPage() {
           placeholder="Escribí tu nota aquí..."
           minHeight={120}
         />
+        {/* AI Assist Toolbar */}
+        {form.content && form.content !== '<p></p>' && (
+          <div className="flex items-center gap-2 flex-wrap border-t border-slate-100 pt-3 mt-1">
+            <span className="text-xs text-slate-400 font-medium mr-1">🤖 IA:</span>
+            <button type="button" onClick={() => aiAction('expand')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Expandir</button>
+            <button type="button" onClick={() => aiAction('summarize')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Resumir</button>
+            <button type="button" onClick={() => aiAction('improve')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Mejorar redacción</button>
+            <button type="button" onClick={() => aiAction('formal')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Formal</button>
+            <button type="button" onClick={() => aiAction('casual')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Casual</button>
+          </div>
+        )}
         <div className="flex items-center gap-3">
           <input type="text" value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} className="input-field flex-1" placeholder="Tags separados por coma (ej: idea, cliente, proyecto)" />
           <button type="submit" className="btn-primary shrink-0">{editing ? 'Actualizar' : 'Guardar Nota'}</button>

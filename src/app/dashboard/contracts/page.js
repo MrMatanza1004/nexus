@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import { generateWithAI } from '@/lib/ai'
+import GoogleDriveButton from '@/components/integrations/NangoDriveButton'
 
 export default function ContractsPage() {
   const [contracts, setContracts] = useState([])
@@ -35,45 +37,17 @@ export default function ContractsPage() {
     setLoading(false)
   }
 
-  function generateContract() {
+  async function handleGenerate() {
     const client = clients.find(c => c.id === form.client_id)
-    const cn = client?.name || '[Cliente]'
-    const d = new Date().toLocaleDateString('es')
-    return `CONTRATO DE PRESTACIÓN DE SERVICIOS
-
-Entre [Tu Nombre], en adelante "EL PROFESIONAL", con domicilio en [Tu Dirección], y ${cn}, en adelante "EL CLIENTE", se celebra el presente contrato en la fecha ${d}.
-
-1. OBJETO
-El PROFESIONAL se compromete a realizar el servicio de "${form.title || '[Servicio]'}" por un monto total de $${form.amount || '[Monto]'}.
-
-2. FORMA DE PAGO
-- 50% al inicio del proyecto
-- 50% contra entrega final
-
-3. PLAZO DE ENTREGA
-[A definir según cronograma acordado]
-
-4. PROPIEDAD INTELECTUAL
-Una vez realizado el pago total, los derechos de propiedad intelectual serán transferidos al CLIENTE.
-
-5. CONFIDENCIALIDAD
-El PROFESIONAL se compromete a mantener confidencialidad sobre toda la información del CLIENTE.
-
-6. CANCELACIÓN
-Cualquiera de las partes puede cancelar el contrato con 7 días de anticipación. En caso de cancelación, el CLIENTE pagará por el trabajo realizado hasta la fecha.
-
-7. JURISDICCIÓN
-Las partes se someten a la jurisdicción de los tribunales de [Ciudad].
-
-Firma del PROFESIONAL: __________________
-Firma del CLIENTE: __________________
-
----
-Generado con NEXUS - El Sistema Operativo Freelance`
-  }
-
-  function handleGenerate() {
-    setForm({ ...form, content: generateContract() })
+    const loadingToast = toast.loading('🤖 IA generando contrato...')
+    try {
+      const prompt = `Cliente: ${client?.name || '[Cliente]'}\nServicio: ${form.title || '[Servicio]'}\nMonto: $${form.amount || '[Monto]'}\nPago: 50% inicio / 50% entrega\nExtras: ninguno`
+      const { result } = await generateWithAI('contract', prompt)
+      setForm({ ...form, content: result })
+      toast.success('✨ Contrato generado con IA', { id: loadingToast })
+    } catch (err) {
+      toast.error('Error: ' + err.message, { id: loadingToast })
+    }
   }
 
   async function saveContract(e) {
@@ -89,7 +63,7 @@ Generado con NEXUS - El Sistema Operativo Freelance`
     const payload = {
       user_id: user.id, client_id: form.client_id || null,
       title: form.title, amount: form.amount ? Number(form.amount) : null,
-      content: form.content || generateContract(), status: form.status,
+      content: form.content || '', status: form.status,
     }
     if (editId) {
       await supabase.from('contracts').update(payload).eq('id', editId)
@@ -142,12 +116,18 @@ Generado con NEXUS - El Sistema Operativo Freelance`
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-sm font-medium text-slate-700">Contenido del contrato</label>
-              <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">🔄 Generar contrato</button>
+              <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">✨ Generar con IA</button>
             </div>
             <textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="input-field font-mono text-sm" rows={15} />
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap items-center">
             <button type="submit" className="btn-primary">{editId ? 'Actualizar' : 'Guardar Contrato'}</button>
+            {form.content && (
+              <GoogleDriveButton
+                content={form.content}
+                filename={`Contrato-${form.title || 'NEXUS'}.txt`}
+              />
+            )}
           </div>
         </form>
       )}

@@ -4,12 +4,16 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import { generateWithAI } from '@/lib/ai'
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState([])
   const [newTask, setNewTask] = useState({ title: '', priority: 'medium', due_date: '' })
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [showAI, setShowAI] = useState(false)
+  const [aiInput, setAiInput] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
 
   useEffect(() => { loadTasks() }, [])
 
@@ -62,13 +66,125 @@ export default function TasksPage() {
     toast.success('Tarea eliminada')
   }
 
+  // 🧠 AI Task Breakdown
+  async function aiBreakdown() {
+    if (!aiInput.trim()) return toast.error('Describí el proyecto')
+    setAiLoading(true)
+    const loadingToast = toast.loading('🤖 La IA está desglosando el proyecto...')
+    try {
+      const { result } = await generateWithAI('tasks', aiInput)
+      // Parse result into tasks
+      const lines = result.split('\n').filter(l => l.trim())
+      const parsedTasks = []
+      for (const line of lines) {
+        // Quitar números, guiones, checkboxes
+        const clean = line.replace(/^[\d\.\-\*\s\[\]x]*\s*/i, '').trim()
+        if (clean && clean.length > 5) {
+          parsedTasks.push(clean)
+        }
+      }
+
+      let user
+      try {
+        const { data } = await supabase.auth.getUser()
+        user = data?.user
+      } catch {
+        user = null
+      }
+
+      if (user && parsedTasks.length > 0) {
+        const inserts = parsedTasks.map(title => ({
+          user_id: user.id,
+          title: title.length > 200 ? title.substring(0, 200) : title,
+          priority: 'medium',
+          status: 'pending',
+        }))
+        const { data: newTasks, error } = await supabase.from('tasks').insert(inserts).select()
+        if (!error && newTasks) {
+          setTasks([...newTasks, ...tasks])
+          toast.success(`✅ ${newTasks.length} tareas creadas desde el proyecto`, { id: loadingToast })
+          setShowAI(false)
+          setAiInput('')
+        } else {
+          toast.error(error.message, { id: loadingToast })
+        }
+      }
+    } catch (err) {
+      toast.error('Error: ' + err.message, { id: loadingToast })
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  // Add individual task from AI result
+  async function addAiTask(title) {
+    let user
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data?.user
+    } catch {
+      user = null
+    }
+    if (!user) return
+
+    const { data, error } = await supabase.from('tasks').insert({
+      user_id: user.id,
+      title: title.length > 200 ? title.substring(0, 200) : title,
+      priority: 'medium',
+      status: 'pending',
+    }).select()
+    if (error) return toast.error(error.message)
+    setTasks([data[0], ...tasks])
+    toast.success('Tarea agregada')
+  }
+
   const filtered = tasks.filter(t => filter === 'all' ? true : t.status === filter)
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-slate-900">📋 Tareas</h1>
+        <button
+          onClick={() => setShowAI(true)}
+          className="btn-primary text-sm flex items-center gap-2"
+        >
+          🤖 Desglosar proyecto
+        </button>
       </div>
+
+      {/* AI Modal */}
+      {showAI && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => !aiLoading && setShowAI(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-slate-900">🤖 Desglosar proyecto con IA</h2>
+              <button onClick={() => setShowAI(false)} className="text-slate-400 hover:text-slate-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <p className="text-sm text-slate-500 mb-4">Describí tu proyecto y la IA lo va a dividir en tareas accionables con prioridades.</p>
+            <textarea
+              value={aiInput}
+              onChange={e => setAiInput(e.target.value)}
+              className="input-field w-full mb-4"
+              rows={5}
+              placeholder="Ej: Hacer una landing page para un cliente que vende cursos online. Necesito secciones: hero, servicios, testimonios, FAQ, y formulario de contacto. También integrar Stripe para pagos y un dashboard simple."
+              disabled={aiLoading}
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowAI(false)} className="text-sm text-slate-600 hover:text-slate-800 px-4 py-2" disabled={aiLoading}>Cancelar</button>
+              <button onClick={aiBreakdown} disabled={aiLoading || !aiInput.trim()} className="btn-primary flex items-center gap-2">
+                {aiLoading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
+                    Desglosando...
+                  </>
+                ) : '🚀 Desglosar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Task */}
       <div className="card p-4 mb-6 flex flex-col sm:flex-row gap-3">
@@ -109,6 +225,7 @@ export default function TasksPage() {
         <div className="card p-12 text-center">
           <p className="text-4xl mb-3">🎉</p>
           <p className="text-slate-500">No hay tareas {filter !== 'all' ? (filter === 'done' ? 'completadas' : 'pendientes') : ''}</p>
+          <p className="text-xs text-slate-400 mt-2">Usá "🤖 Desglosar proyecto" para generar tareas desde una descripción</p>
         </div>
       ) : (
         <div className="space-y-2">

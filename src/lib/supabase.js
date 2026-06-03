@@ -1,3 +1,4 @@
+import { createBrowserClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 
 let supabaseClient = null
@@ -8,7 +9,9 @@ function getSupabase() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     if (!url || !key) return null
-    supabaseClient = createClient(url, key)
+    // Use createBrowserClient so session is stored in cookies (compatible
+    // with @supabase/ssr used in server-side auth callback & middleware)
+    supabaseClient = createBrowserClient(url, key)
   }
   return supabaseClient
 }
@@ -82,8 +85,14 @@ export const supabase = new Proxy({}, {
       // Return a function that resolves to empty data for any call
       const stub = (...args) => Promise.resolve({ data: null, error: null })
       // Make nested property access safe
-      stub.auth = { getSession: stub, getUser: stub, signOut: stub, onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }), signInWithPassword: stub, signUp: stub, signInWithOtp: stub, updateUser: stub }
-      stub.from = () => ({ select: stub, insert: stub, update: stub, delete: stub, eq: stub, order: stub, limit: stub, gte: stub, lte: stub })
+      stub.auth = { getSession: stub, getUser: stub, signOut: stub, onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }), signInWithPassword: stub, signUp: stub, signInWithOtp: stub, updateUser: stub, signInWithOAuth: stub }
+      stub.from = () => new Proxy({ select: stub, insert: stub, update: stub, delete: stub, eq: stub, order: stub, limit: stub, gte: stub, lte: stub, single: stub, maybeSingle: stub }, {
+        get(target, prop) {
+          if (prop in target) return target[prop]
+          if (prop === 'then') return undefined
+          return () => target
+        }
+      })
       stub.storage = { from: () => ({ upload: stub, getPublicUrl: stub, list: stub, remove: stub }) }
       return stub
     }

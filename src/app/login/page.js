@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import OAuthButtons from '@/components/OAuthButtons'
+import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -60,10 +62,7 @@ export default function LoginPage() {
       <div className="card p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">N</span>
-            </div>
-            <span className="font-bold text-xl text-slate-900">NEXUS</span>
+            <Logo />
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Iniciar Sesión</h1>
           <p className="text-slate-500 mt-2">Bienvenido de vuelta a tu centro de operaciones</p>
@@ -96,6 +95,17 @@ export default function LoginPage() {
             {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-slate-500">o</span>
+          </div>
+        </div>
+
+        <OAuthButtons />
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">

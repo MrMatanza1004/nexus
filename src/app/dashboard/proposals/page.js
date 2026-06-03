@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import TipTapEditor from '@/components/TipTapEditor'
+import { generateWithAI } from '@/lib/ai'
 
 export default function ProposalsPage() {
   const [proposals, setProposals] = useState([])
@@ -117,6 +118,26 @@ export default function ProposalsPage() {
     setShowForm(true)
   }
 
+  async function aiEnhance() {
+    const content = form.description || form.scope || ''
+    if (!content || content === '<p></p>') return toast.error('Primero escribí el contenido de la propuesta')
+
+    const plainText = content.replace(/<[^>]*>/g, '').trim()
+    if (!plainText) return toast.error('Escribí contenido antes de usar IA')
+
+    const loading = toast.loading('🤖 IA potenciando propuesta...')
+    try {
+      const { result } = await generateWithAI('proposal', plainText, 'Aplicá todas las mejoras: urgencia, garantía, llamado a la acción, prueba social.')
+      if (result) {
+        const htmlResult = content.includes('<h') ? content : `<p>${result.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
+        setForm({ ...form, description: htmlResult })
+        toast.success('✨ Propuesta potenciada con IA', { id: loading })
+      }
+    } catch (err) {
+      toast.error('Error: ' + err.message, { id: loading })
+    }
+  }
+
   function printProposal(p) {
     const w = window.open('', '_blank')
     w.document.write(`
@@ -179,9 +200,12 @@ export default function ProposalsPage() {
             <textarea value={form.terms} onChange={e => setForm({ ...form, terms: e.target.value })} className="input-field" rows={2} placeholder="50% al inicio, 50% al finalizar. Válido por 15 días." />
           </div>
           <div>
-            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1">
               <label className="block text-sm font-medium text-slate-700">Contenido de la propuesta</label>
-              <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">🔄 Generar automáticamente</button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={aiEnhance} className="text-xs bg-violet-100 hover:bg-violet-200 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">✨ Potenciar con IA</button>
+                <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">🔄 Generar automáticamente</button>
+              </div>
             </div>
             <TipTapEditor
               content={form.description}

@@ -40,35 +40,38 @@ export default function FilesPage() {
   async function handleUpload(e) {
     const file = e.target.files?.[0]
     if (!file) return
-
-    setUploading(true)
-    let user
-    try {
-      const { data } = await supabase.auth.getUser()
-      user = data?.user
-    } catch {
-      user = null
-    }
-    if (!user) return
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${user.id}/${Date.now()}-${file.name}`
-    const { error: uploadError } = await supabase.storage.from('centro-files').upload(fileName, file)
-    if (uploadError) {
-      toast.error('Error al subir archivo')
-      setUploading(false)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('❌ El archivo es demasiado grande (máx 50MB)')
       return
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('centro-files').getPublicUrl(fileName)
-    await supabase.from('files').insert({
-      user_id: user.id, name: file.name, url: publicUrl,
-      size: file.size, type: file.type,
-      project_id: filterProject || null,
-      client_id: null,
-    })
-    toast.success('Archivo subido')
-    setUploading(false)
-    loadData()
+    setUploading(true)
+    const loadingToast = toast.loading('📤 Subiendo archivo...')
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('project_id', filterProject || '')
+
+      const res = await fetch('/api/files/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+
+      if (data.error) {
+        toast.error(`❌ ${data.error}`, { id: loadingToast, duration: 6000 })
+        setUploading(false)
+        return
+      }
+
+      toast.success('✅ Archivo subido', { id: loadingToast })
+      setUploading(false)
+      loadData()
+    } catch (err) {
+      toast.error(`❌ Error de red: ${err.message}`, { id: loadingToast, duration: 6000 })
+      setUploading(false)
+    }
   }
 
   const filtered = files.filter(f => {

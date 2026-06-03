@@ -1,0 +1,70 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Next.js 16.2.6 (Turbopack) + React 19.2.4 + Tailwind CSS v4
+  Supabase (auth/db/RLS), Stripe (payments + Connect), Resend (email),
+  OpenRouter (AI), Google Drive OAuth. Deployed on Vercel.
+  Pure JavaScript (no TypeScript), App Router, @/* path alias.
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules (lib/, components/, app/routes)
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow existing code patterns and conventions
+    - Load relevant coding skills for the project stack
+  verify:
+    - Run tests if test infrastructure exists
+    - Compare implementation against every spec scenario
+  archive:
+    - Warn before merging destructive deltas (large removals)
+
+strict_tdd: false
+
+testing:
+  ## Testing Capabilities (detected 2026-05-29)
+  strict_tdd_mode: false
+  reason: No test runner detected in project dependencies
+
+  test_runner:
+    command: NONE
+    framework: NONE
+    note: No test framework found in devDependencies
+
+  layers:
+    unit:
+      available: false
+      tool: null
+    integration:
+      available: false
+      tool: null
+    e2e:
+      available: false
+      tool: null
+
+  coverage:
+    available: false
+    command: null
+
+  quality_tools:
+    linter:
+      available: true
+      command: npm run lint (eslint v9 + next/core-web-vitals)
+    type_checker:
+      available: false
+      command: null
+      note: Project uses JavaScript (no TypeScript)
+    formatter:
+      available: false
+      command: null

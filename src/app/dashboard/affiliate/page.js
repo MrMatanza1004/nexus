@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import AffiliatePromotionBanner from '@/components/AffiliatePromotionBanner'
 
 export default function AffiliatePage() {
   const [user, setUser] = useState(null)
@@ -11,17 +12,27 @@ export default function AffiliatePage() {
   const [referrals, setReferrals] = useState([])
   const [copied, setCopied] = useState(false)
   const [affiliateCode, setAffiliateCode] = useState('')
+  const [connectLoading, setConnectLoading] = useState(false)
+  const [connectReady, setConnectReady] = useState(false)
 
   useEffect(() => {
     try {
       supabase.auth.getUser().then(({ data }) => {
-        setUser(data?.user ?? null)
-        const code = data?.user?.user_metadata?.affiliate_code
+        const u = data?.user ?? null
+        setUser(u)
+        const code = u?.user_metadata?.affiliate_code
         setAffiliateCode(code || '')
-        if (data?.user?.id) loadStats(data.user.id, code)
+        setConnectReady(!!u?.user_metadata?.stripe_connect_ready)
+        if (u?.id) loadStats(u.id, code)
       })
-    } catch {
-      setUser(null)
+    } catch { setUser(null) }
+
+    // Check if returning from Stripe Connect onboarding
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('connect') === 'success') {
+      toast.success('✅ Pagos automáticos configurados')
+      setConnectReady(true)
+      window.history.replaceState({}, '', '/dashboard/affiliate')
     }
   }, [])
 
@@ -32,15 +43,32 @@ export default function AffiliatePage() {
     ])
     const conversions = convRes.data || []
     const earnings = conversions.filter(c => c.status === 'paid').reduce((s, c) => s + Number(c.commission_amount || 0), 0)
-    setStats({
-      clicks: clickRes.count || 0,
-      conversions: conversions.length,
-      earnings,
-    })
+    setStats({ clicks: clickRes.count || 0, conversions: conversions.length, earnings })
     setReferrals(conversions)
   }
 
-  const affiliateLink = `${window.location.origin}/register?ref=${affiliateCode}`
+  async function setupAutoPayout() {
+    if (!user) return
+    setConnectLoading(true)
+    try {
+      const res = await fetch('/api/stripe/create-connect-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      })
+      const { url, error } = await res.json()
+      if (error) return toast.error(error)
+      window.location.href = url
+    } catch (err) {
+      toast.error('Error: ' + err.message)
+    } finally {
+      setConnectLoading(false)
+    }
+  }
+
+  const affiliateLink = affiliateCode
+    ? `https://ionexus.pro/api/affiliate/track?code=${affiliateCode}&landing=/register`
+    : ''
 
   function copyLink() {
     navigator.clipboard.writeText(affiliateLink)
@@ -53,7 +81,38 @@ export default function AffiliatePage() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">🤝 Afiliados</h1>
-        <p className="text-slate-500 mt-1">Compartí tu link y ganá 25% recurrente por cada referido</p>
+        <p className="text-slate-500 mt-1">Compartí tu link y ganá comisiones automáticas</p>
+      </div>
+
+      {/* Promo semanal */}
+      <AffiliatePromotionBanner />
+
+      {/* Auto-payout CTA */}
+      <div className={`card p-5 mb-6 flex items-center justify-between gap-4 border-2 ${connectReady ? 'border-emerald-200 bg-emerald-50' : 'border-violet-200 bg-violet-50'}`}>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{connectReady ? '✅' : '💳'}</span>
+          <div>
+            <p className="font-semibold text-slate-900 text-sm">
+              {connectReady ? 'Pagos automáticos activos' : 'Activar pagos automáticos'}
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {connectReady
+                ? 'Tus comisiones se transfieren automáticamente a tu cuenta bancaria'
+                : 'Conectá tu cuenta bancaria y recibí comisiones sin intervención manual'}
+            </p>
+          </div>
+        </div>
+        {!connectReady && (
+          <button
+            onClick={setupAutoPayout}
+            disabled={connectLoading}
+            className="btn-primary text-sm shrink-0 flex items-center gap-2"
+          >
+            {connectLoading ? (
+              <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Conectando...</>
+            ) : '⚡ Configurar pagos'}
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -81,10 +140,11 @@ export default function AffiliatePage() {
             {copied ? '✅ Copiado' : '📋 Copiar'}
           </button>
         </div>
-        <div className="flex items-center gap-2 mt-3 text-sm text-slate-500">
-          <span className="badge-info">25% comisión recurrente</span>
-          <span className="badge-info">Cookies de 30 días</span>
-          <span className="badge-info">Sin límite</span>
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          <span className="badge-info text-xs">25% comisión recurrente</span>
+          <span className="badge-info text-xs">Cookies 30 días</span>
+          <span className="badge-info text-xs">Pago automático</span>
+          {connectReady && <span className="badge-success text-xs">✅ Stripe Connect activo</span>}
         </div>
       </div>
 
@@ -99,7 +159,7 @@ export default function AffiliatePage() {
             '"El generador de propuestas de NEXUS me cerró proyectos de $5K+"',
           ].map((tweet, i) => (
             <div key={i} className="bg-slate-50 rounded-lg p-3 text-sm text-slate-700 italic">
-              "{tweet}"
+              {tweet}
               <button onClick={() => { navigator.clipboard.writeText(tweet); toast.success('Copiado!') }} className="text-xs text-violet-600 hover:text-violet-700 ml-2">📋</button>
             </div>
           ))}
@@ -120,9 +180,14 @@ export default function AffiliatePage() {
                 <p className="text-sm font-medium text-slate-900">Usuario {r.referred_user_id?.slice(0, 8)}</p>
                 <p className="text-xs text-slate-500">{formatDate(r.created_at)}</p>
               </div>
-              <span className={`badge ${r.status === 'paid' ? 'badge-success' : 'badge-warning'}`}>
-                {r.status === 'paid' ? 'Pagado' : 'Pendiente'}
-              </span>
+              <div className="flex items-center gap-3">
+                {r.commission_amount > 0 && (
+                  <span className="text-sm font-semibold text-emerald-600">{formatCurrency(r.commission_amount)}</span>
+                )}
+                <span className={`badge ${r.status === 'paid' ? 'badge-success' : 'badge-warning'}`}>
+                  {r.status === 'paid' ? '✅ Pagado' : 'Pendiente'}
+                </span>
+              </div>
             </div>
           ))}
         </div>

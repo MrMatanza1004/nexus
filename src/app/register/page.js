@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import OAuthButtons from '@/components/OAuthButtons'
+import Logo from '@/components/Logo'
 import { generateAffiliateCode } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
@@ -11,12 +13,44 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [acceptTerms, setAcceptTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
+  // 🔥 Capturar código de referido desde URL y setear cookie
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const refFromUrl = params.get('ref')
+    if (refFromUrl) {
+      document.cookie = `nexus_ref=${refFromUrl}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`
+    }
+  }, [])
+
   async function handleRegister(e) {
     e.preventDefault()
+    if (!acceptTerms) {
+      toast.error('Debés aceptar los Términos de Servicio y la Política de Privacidad')
+      setLoading(false)
+      return
+    }
     setLoading(true)
+
+    // Validar que el dominio del email tenga MX records (frena emails truchos)
+    const domain = email.split('@')[1]
+    if (domain) {
+      try {
+        const m = await fetch(`/api/auth/validate-email?email=${encodeURIComponent(email)}`)
+        const r = await m.json()
+        if (!r.valid) {
+          toast.error('El email no parece válido — usá una dirección de correo real')
+          setLoading(false)
+          return
+        }
+      } catch {
+        // Si falla la validación, dejamos pasar (mejor falso positivo que bloquear a un usuario real)
+        console.warn('Email validation skipped — network error')
+      }
+    }
 
     const ref = document.cookie.split('; ').find(r => r.startsWith('nexus_ref='))
     const referredBy = ref ? ref.split('=')[1] : null
@@ -47,22 +81,34 @@ export default function RegisterPage() {
       return
     }
 
-    if (referredBy) {
-      await supabase.from('affiliate_conversions').insert({
-        affiliate_code: referredBy,
-        referred_user_id: data.user.id,
-        commission_amount: 0,
-        status: 'pending',
-      })
+    const userId = data?.user?.id
+    if (!userId) {
+      console.error('Signup succeeded but no user returned:', data)
+      toast.success('Cuenta creada! Revisá tu email para confirmar.')
+      setLoading(false)
+      return
     }
 
-    fetch('/api/email/send-welcome', {
-      method: 'POST',
-      body: JSON.stringify({ email, name: fullName }),
-    }).catch(() => {})
+    if (referredBy) {
+      supabase.from('affiliate_conversions').insert({
+        affiliate_code: referredBy,
+        referred_user_id: userId,
+        commission_amount: 0,
+        status: 'pending',
+      }).catch(() => {})
+    }
 
-    toast.success('Cuenta creada! Revisá tu email para confirmar.')
-    router.push('/login')
+    // Auto-confirm user so they can sign in without email verification
+    fetch('/api/auth/auto-confirm', {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    }).then(res => {
+      if (!res.ok) console.error('Auto-confirm failed:', res.status)
+    }).catch(err => console.error('Auto-confirm error:', err))
+
+    toast.success('Cuenta creada! Ya podés iniciar sesión.')
+    setLoading(false)
+    setTimeout(() => router.push('/login'), 1500)
   }
 
   return (
@@ -70,10 +116,7 @@ export default function RegisterPage() {
       <div className="card p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">N</span>
-            </div>
-            <span className="font-bold text-xl text-slate-900">NEXUS</span>
+            <Logo />
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Crear tu Cuenta</h1>
           <p className="text-slate-500 mt-2">7 días gratis, sin compromiso</p>
@@ -114,14 +157,35 @@ export default function RegisterPage() {
               required
             />
           </div>
-          <button type="submit" disabled={loading} className="btn-primary w-full">
+          <label className="flex items-start gap-3 text-xs text-slate-500">
+            <input
+              type="checkbox"
+              checked={acceptTerms}
+              onChange={e => setAcceptTerms(e.target.checked)}
+              className="mt-0.5 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+            />
+            <span>
+              Acepto los <a href="/terms" target="_blank" className="text-violet-600 underline">Términos de Servicio</a>,
+              el <a href="/privacy" target="_blank" className="text-violet-600 underline">Aviso Legal y Política de Privacidad</a>,
+              y <strong>otorgo mi consentimiento expreso</strong> para recibir comunicaciones comerciales y promocionales
+              de NEXUS y sus proyectos asociados.
+            </span>
+          </label>
+          <button type="submit" disabled={loading || !acceptTerms} className="btn-primary w-full disabled:opacity-50">
             {loading ? 'Creando cuenta...' : 'Comenzar mi Prueba Gratis'}
           </button>
         </form>
 
-        <p className="text-center text-xs text-slate-400 mt-4">
-          Al registrarte, aceptás nuestros Términos y Condiciones
-        </p>
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-slate-500">o registrate con</span>
+          </div>
+        </div>
+
+        <OAuthButtons />
 
         <p className="text-center text-sm text-slate-500 mt-6">
           ¿Ya tenés cuenta?{' '}

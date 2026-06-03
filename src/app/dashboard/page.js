@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import AffiliateDashboardCard from '@/components/AffiliateDashboardCard'
 import Link from 'next/link'
 
 export default function DashboardHome() {
@@ -81,6 +82,11 @@ export default function DashboardHome() {
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{greeting}</h1>
         <p className="text-slate-500 mt-1">{user?.user_metadata?.full_name || 'Freelancer'}, acá está el resumen de tu negocio.</p>
+      </div>
+
+      {/* Affiliate Card */}
+      <div className="mb-6">
+        <AffiliateDashboardCard />
       </div>
 
       {/* Stats Grid */}

@@ -1,9 +1,13 @@
+// Price IDs hardcoded — Stripe product prices (MXN)
+// Starter: $199/mes, Pro: $599/mes, AI: $999/mes
+
 export const PLANS = {
   starter: {
     id: 'starter',
     name: 'Starter',
-    price: 9,
-    priceId: 'price_starter', // Replace with Stripe price ID
+    price: 199,
+    priceId: 'price_1TceAHIKNlA3QlU4l77jf9Lv',
+    currency: 'MXN',
     features: [
       'Task Manager',
       'Quick Notes',
@@ -16,8 +20,9 @@ export const PLANS = {
   pro: {
     id: 'pro',
     name: 'Profesional',
-    price: 29,
-    priceId: 'price_pro',
+    price: 599,
+    priceId: 'price_1TceALIKNlA3QlU4AQulK1AI',
+    currency: 'MXN',
     features: [
       'TODAS las herramientas',
       'Clientes ilimitados',
@@ -36,8 +41,9 @@ export const PLANS = {
   ai: {
     id: 'ai',
     name: 'Profesional + AI',
-    price: 49,
-    priceId: 'price_ai',
+    price: 999,
+    priceId: 'price_1TceAOIKNlA3QlU4FyCto5ie',
+    currency: 'MXN',
     features: [
       'Todo lo del plan Pro',
       'AI Email Writer',
@@ -52,3 +58,8 @@ export const AFFILIATE_COMMISSION_RATE = 0.25
 export const AFFILIATE_COOKIE_DAYS = 30
 export const TRIAL_DAYS = 7
 export const SOCIAL_PROOF_INTERVAL = 15000
+
+// Email marketing timing
+export const UPGRADE_STARTER_DAYS = 14   // Days on Starter before upgrade email
+export const UPGRADE_PRO_DAYS = 30        // Days on Pro before upgrade email
+export const TRIAL_SEQUENCE_DAYS = 7      // Days of daily trial emails

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 
 export default function ClientPortalPage({ params }) {
   const [data, setData] = useState(null)
@@ -59,10 +60,10 @@ export default function ClientPortalPage({ params }) {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 py-6 flex items-center gap-3">
-          <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">N</span>
+          <div className="flex items-center gap-3">
+            <Logo variant="icon" />
+            <span className="font-bold text-lg text-slate-900">NEXUS · Portal del Cliente</span>
           </div>
-          <span className="font-bold text-lg text-slate-900">NEXUS · Portal del Cliente</span>
         </div>
       </header>
 

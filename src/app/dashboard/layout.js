@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import AffiliateSidebarWidget from '@/components/AffiliateSidebarWidget'
+import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
 
 const sidebarItems = [
@@ -12,12 +14,14 @@ const sidebarItems = [
   { icon: '📋', label: 'Tareas', href: '/dashboard/tasks' },
   { icon: '👥', label: 'Clientes', href: '/dashboard/clients' },
   { icon: '📁', label: 'Proyectos', href: '/dashboard/projects' },
+  { icon: '✉️', label: 'Correo', href: '/dashboard/email' },
+  { icon: '🗓️', label: 'Calendario', href: '/dashboard/calendar' },
   { icon: '📝', label: 'Notas', href: '/dashboard/notes' },
   { icon: '📓', label: 'Diario', href: '/dashboard/journal' },
   { icon: '📄', label: 'Propuestas', href: '/dashboard/proposals' },
   { icon: '⚖️', label: 'Contratos', href: '/dashboard/contracts' },
+  { icon: '💳', label: 'Gastos', href: '/dashboard/expenses' },
   { icon: '💰', label: 'Facturas', href: '/dashboard/invoices' },
-  { icon: '💸', label: 'Gastos', href: '/dashboard/expenses' },
   { icon: '⏱️', label: 'Tiempo', href: '/dashboard/time' },
   { icon: '💾', label: 'Archivos', href: '/dashboard/files' },
   { icon: '🤖', label: 'AI Tools', href: '/dashboard/ai' },
@@ -26,6 +30,8 @@ const sidebarItems = [
   { icon: '🎯', label: 'Metas', href: '/dashboard/goals' },
   { icon: '⭐', label: 'Testimonios', href: '/dashboard/testimonials' },
   { icon: '💬', label: 'Feedback', href: '/dashboard/feedback' },
+  { icon: '📊', label: 'Analíticas', href: '/dashboard/analytics' },
+  { icon: '📊', label: 'Admin', href: '/dashboard/admin', adminOnly: true },
   { icon: '⚙️', label: 'Configuración', href: '/dashboard/settings' },
 ]
 
@@ -33,6 +39,7 @@ export default function DashboardLayout({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const isAdmin = user?.email === 'imthebow@gmail.com'
   const router = useRouter()
   const pathname = usePathname()
 
@@ -47,8 +54,13 @@ export default function DashboardLayout({ children }) {
           return
         }
         setUser(session.user)
+
+        // Verificar estado de Google Drive via Nango
+        const meta = session.user?.user_metadata || {}
+        const nangoConnections = meta.nango_connections || {}
+        const driveConnected = !!nangoConnections['google-drive'] || !!meta.drive_access_token
       } catch {
-        // Silently fail, user stays null
+        // Silently fail
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -81,17 +93,15 @@ export default function DashboardLayout({ children }) {
       <aside className={`fixed left-0 top-16 bottom-0 w-64 bg-slate-900 text-white z-30 transform transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 overflow-y-auto`}>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-6 px-3">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">N</span>
-            </div>
-            <div>
-              <p className="font-bold text-sm">NEXUS</p>
-              <p className="text-xs text-slate-400 truncate">{user?.email}</p>
-            </div>
+              <Logo variant="icon" />
+              <div>
+                <p className="font-bold text-sm tracking-wider">NEXUS</p>
+                <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+              </div>
           </div>
 
           <nav className="space-y-1">
-            {sidebarItems.map(item => (
+            {sidebarItems.filter(item => item.adminOnly ? isAdmin : true).map(item => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -103,6 +113,8 @@ export default function DashboardLayout({ children }) {
               </Link>
             ))}
           </nav>
+
+          <AffiliateSidebarWidget />
 
           <div className="border-t border-white/10 mt-6 pt-4 px-3">
             <button onClick={handleLogout} className="sidebar-link w-full text-slate-400 hover:text-red-400 text-sm">
@@ -127,10 +139,8 @@ export default function DashboardLayout({ children }) {
             </svg>
           </button>
           <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-6 h-6 gradient-primary rounded flex items-center justify-center">
-              <span className="text-white font-bold text-xs">N</span>
-            </div>
-            <span className="font-bold text-slate-900">NEXUS</span>
+            <Logo variant="icon" className="!w-6 !h-6" />
+            <span className="font-bold text-slate-900 text-sm tracking-wider">NEXUS</span>
           </Link>
           <div className="w-10" />
         </div>

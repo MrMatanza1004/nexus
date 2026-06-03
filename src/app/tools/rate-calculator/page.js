@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 
 export default function RateCalculatorPage() {
   const [form, setForm] = useState({
@@ -37,10 +38,7 @@ export default function RateCalculatorPage() {
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">N</span>
-            </div>
-            <span className="font-bold text-lg text-slate-900">NEXUS</span>
+            <Logo />
           </Link>
           <Link href="/register" className="text-sm text-violet-600 font-semibold hover:text-violet-700">
             Crear cuenta gratis →

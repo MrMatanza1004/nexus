@@ -2,250 +2,261 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { aiTools, generateWithAI } from '@/lib/ai'
 import toast from 'react-hot-toast'
 
-const emailTemplates = {
-  follow_up: {
-    label: 'Follow-up',
-    generate: (client, project) => `Hola ${client?.name || '[Cliente]'},\n\nEspero que este mensaje te encuentre bien. Quería hacer un seguimiento de nuestra conversación anterior sobre ${project?.name || 'el proyecto'}.\n\nQuedo atento a cualquier novedad o pregunta que puedas tener.\n\nSaludos cordiales,\n[Tu nombre]`,
-    tone: 'Profesional',
-  },
-  proposal: {
-    label: 'Propuesta',
-    generate: (client, project) => `Estimado/a ${client?.name || '[Cliente]'},\n\nTal como lo hablamos, te comparto la propuesta para ${project?.name || 'el proyecto'}.\n\nAdjunto encontrarás los detalles del alcance, los plazos estimados y el presupuesto correspondiente. Quedo a disposición para cualquier ajuste o consulta.\n\nSaludos,\n[Tu nombre]`,
-    tone: 'Formal',
-  },
-  invoice_reminder: {
-    label: 'Recordatorio de pago',
-    generate: (client, project) => `Hola ${client?.name || '[Cliente]'},\n\nTe escribo para recordarte amablemente que la factura correspondiente a ${project?.name || 'los servicios prestados'} se encuentra pendiente de pago.\n\nPodés realizarlo a través del link de pago que te envié anteriormente. Agradezco tu atención.\n\nSaludos,\n[Tu nombre]`,
-    tone: 'Cordial',
-  },
-  thank_you: {
-    label: 'Agradecimiento',
-    generate: (client, project) => `Hola ${client?.name || '[Cliente]'},\n\nQuería agradecerte por la confianza depositada en mí para ${project?.name || 'el proyecto'}. Fue un placer trabajar con vos.\n\nEspero que el resultado haya sido de tu agrado. Quedo a tu disposición para futuras colaboraciones.\n\nUn abrazo,\n[Tu nombre]`,
-    tone: 'Cálido',
-  },
-  check_in: {
-    label: 'Check-in de proyecto',
-    generate: (client, project) => `Hola ${client?.name || '[Cliente]'},\n\nEspero que todo vaya bien. Quería hacer un check-in rápido sobre ${project?.name || 'el proyecto'} para ver cómo vamos y si hay algo que necesites ajustar.\n\nAvísame cualquier cosa.\n\nSaludos,\n[Tu nombre]`,
-    tone: 'Informal',
-  },
-  testimonial_request: {
-    label: 'Pedir testimonio',
-    generate: (client, project) => `Hola ${client?.name || '[Cliente]'},\n\nMe alegró mucho trabajar con vos en ${project?.name || 'el proyecto'}. Si te quedó un buen sabor de boca, ¿me regalarías unas líneas para mi sitio?\n\nTu opinión ayuda a otros freelancers a confiar en mí.\n\n¡Gracias!\n[Tu nombre]`,
-    tone: 'Cálido',
-  },
-}
-
-const bios = [
-  {
-    title: 'Profesional con experiencia',
-    generate: (name, role, years) => `Soy ${name || '[Nombre]'}, ${role || '[rol]'} con ${years || 'X'} años de experiencia ayudando a empresas y emprendedores a alcanzar sus objetivos a través de soluciones creativas y estratégicas.
-
-Mi enfoque combina pensamiento analítico con ejecución impecable, garantizando resultados que superan expectativas. He trabajado con clientes de diversos sectores, desde startups hasta corporaciones multinacionales.
-
-Creo firmemente en el poder de la colaboración y la comunicación transparente como pilares de proyectos exitosos.`,
-  },
-  {
-    title: 'Creativo y resolutivo',
-    generate: (name, role, years) => `${name || '[Nombre]'} · ${role || '[rol]'}
-
-Transformo ideas en resultados. Con ${years || 'X'} años de experiencia, me especializo en crear soluciones que no solo se ven bien, sino que funcionan.
-
-Mi filosofía de trabajo: entender el problema antes de buscar la solución. Cada proyecto es único y merece un enfoque personalizado.
-
-Clientes satisfechos en 3 continentes.`,
-  },
-  {
-    title: 'Enfocado en resultados',
-    generate: (name, role, years) => `${name || '[Nombre]'} — ${role || '[rol]'}
-
-+${years || 'X'} años generando impacto real para marcas y negocios. No solo entrego trabajo, entrego resultados medibles.
-
-Mi metodología: entender tu negocio, diseñar la estrategia, ejecutar con excelencia.
-
-¿Hablamos de tu próximo proyecto?`,
-  },
-]
-
-const proposalEnhancers = [
-  {
-    title: 'Añadir urgencia',
-    enhance: (content) => `${content}\n\n⚠️ OFERTA POR TIEMPO LIMITADO\nEsta propuesta tiene un descuento del 15% por lanzamiento. El precio aumenta en 7 días.\n\n👉 Asegurá tu tarifa preferencial respondiendo este mensaje.`,
-  },
-  {
-    title: 'Añadir garantía',
-    enhance: (content) => `${content}\n\n🛡️ GARANTÍA DE SATISFACCIÓN\nSi no estás 100% satisfecho con el resultado, ajustamos todo hasta que quedes contento. Sin costo adicional.\n\nTu tranquilidad es mi prioridad.`,
-  },
-  {
-    title: 'Añadir prueba social',
-    enhance: (content) => `${content}\n\n⭐ LO QUE DICEN MIS CLIENTES\n"Trabajar con [Nombre] transformó la forma en que manejamos nuestros proyectos. Altamente recomendado." — Cliente reciente\n\n💰 Resultado: +40% de eficiencia en 3 meses.`,
-  },
-  {
-    title: 'Añadir llamado a la acción',
-    enhance: (content) => `${content}\n\n🚀 PRÓXIMOS PASOS\n1. Revisá esta propuesta\n2. Respondé este mensaje con tu OK\n3. Arrancamos en 48hs\n\n👉 Respondé ahora para asegurar tu lugar en mi agenda.`,
-  },
-]
-
 export default function AIPage() {
-  const [tab, setTab] = useState('email')
-  const [clients, setClients] = useState([])
-  const [selectedClient, setSelectedClient] = useState(null)
+  const [activeTool, setActiveTool] = useState('email')
+  const [formValues, setFormValues] = useState({})
   const [result, setResult] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [history, setHistory] = useState([])
+  const [showHistory, setShowHistory] = useState(false)
 
-  useEffect(() => { loadClients() }, [])
+  const tool = aiTools[activeTool]
 
-  async function loadClients() {
-    let user
+  function updateField(key, value) {
+    setFormValues(prev => ({ ...prev, [key]: value }))
+  }
+
+  async function handleGenerate() {
+    if (!tool) return
+
+    setLoading(true)
+    setResult('')
+
     try {
-      const { data } = await supabase.auth.getUser()
-      user = data?.user
-    } catch {
-      user = null
+      const prompt = tool.buildPrompt(formValues)
+      const { result: aiResult } = await generateWithAI(tool.id, prompt)
+      setResult(aiResult)
+      setHistory(prev => [{ tool: tool.id, name: tool.title, result: aiResult, time: new Date() }, ...prev].slice(0, 20))
+    } catch (err) {
+      toast.error(err.message || 'Error al generar')
+    } finally {
+      setLoading(false)
     }
-    if (!user) return
-    const { data } = await supabase.from('clients').select('id, name, email').eq('user_id', user.id)
-    if (data) setClients(data)
   }
 
-  const [emailForm, setEmailForm] = useState({ template: 'follow_up', name: '', project: '' })
-  const [bioForm, setBioForm] = useState({ template: 0, name: '', role: '', years: '' })
-  const [proposalForm, setProposalForm] = useState({ enhancer: 0, content: '' })
-
-  function generateEmail() {
-    const tmpl = emailTemplates[emailForm.template]
-    const client = clients.find(c => c.id === selectedClient)
-    let text = tmpl.generate(client || { name: emailForm.name }, { name: emailForm.project })
-    setResult(text)
+  async function copyResult() {
+    if (!result) return
+    try {
+      await navigator.clipboard.writeText(result)
+      toast.success('Copiado al portapapeles 📋')
+    } catch {
+      toast.error('No se pudo copiar')
+    }
   }
 
-  function generateBio() {
-    const tmpl = bios[bioForm.template]
-    let text = tmpl.generate(bioForm.name, bioForm.role, bioForm.years)
-    setResult(text)
-  }
-
-  function enhanceProposal() {
-    const tmpl = proposalEnhancers[proposalForm.enhancer]
-    let text = proposalForm.content
-      ? tmpl.enhance(proposalForm.content)
-      : 'Primero escribí o pegá el contenido de tu propuesta arriba.'
-    setResult(text)
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      handleGenerate()
+    }
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">🤖 AI Tools</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">🤖 NEXUS AI</h1>
+          <p className="text-sm text-slate-500 mt-1">8 herramientas potenciadas por inteligencia artificial</p>
+        </div>
+        {history.length > 0 && (
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+          >
+            {showHistory ? '✕ Cerrar historial' : '📜 Historial'}
+          </button>
+        )}
+      </div>
 
-      <div className="flex gap-2 mb-6 overflow-x-auto">
-        {[
-          { key: 'email', label: '✉️ Email Writer' },
-          { key: 'bio', label: '👤 Bio Generator' },
-          { key: 'proposal', label: '📄 Proposal Enhancer' },
-        ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-              tab === t.key ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+      {/* Tool Selector */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        {Object.values(aiTools).map(t => (
+          <button
+            key={t.id}
+            onClick={() => { setActiveTool(t.id); setResult(''); setFormValues({}) }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+              activeTool === t.id
+                ? 'bg-violet-100 text-violet-700 ring-2 ring-violet-200'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            {t.label}
+            <span className="text-lg">{t.icon}</span>
+            <span className="hidden sm:inline">{t.title}</span>
           </button>
         ))}
       </div>
 
+      {/* History Panel */}
+      {showHistory && (
+        <div className="card p-4 mb-6 max-h-[300px] overflow-y-auto">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">📜 Últimas generaciones</h3>
+          {history.map((h, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 cursor-pointer hover:bg-slate-50 rounded px-2 -mx-2 transition-colors"
+              onClick={() => setResult(h.result)}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">{aiTools[h.tool]?.icon || '🤖'}</span>
+                <span className="text-sm text-slate-700">{h.name}</span>
+              </div>
+              <span className="text-xs text-slate-400">{h.time.toLocaleTimeString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Input Panel */}
         <div className="card p-6">
-          {tab === 'email' && (
-            <div className="space-y-4">
-              <h2 className="font-semibold text-slate-900">Generar Email</h2>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Cliente</label>
-                <select value={selectedClient || ''} onChange={e => setSelectedClient(e.target.value)} className="input-field">
-                  <option value="">Seleccionar cliente existente</option>
-                  {clients.map(c => <option key={c.id} value={c.id}>{c.name} ({c.email})</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">O nombre del cliente</label>
-                <input type="text" value={emailForm.name} onChange={e => setEmailForm({ ...emailForm, name: e.target.value })} className="input-field" placeholder="Ej: Juan Pérez" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Proyecto / Contexto</label>
-                <input type="text" value={emailForm.project} onChange={e => setEmailForm({ ...emailForm, project: e.target.value })} className="input-field" placeholder="Ej: Rediseño de landing page" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de email</label>
-                <select value={emailForm.template} onChange={e => setEmailForm({ ...emailForm, template: e.target.value })} className="input-field">
-                  {Object.entries(emailTemplates).map(([k, v]) => <option key={k} value={k}>{v.label} ({v.tone})</option>)}
-                </select>
-              </div>
-              <button onClick={generateEmail} className="btn-primary">Generar Email ✨</button>
+          <div className="flex items-center gap-2 mb-5">
+            <span className="text-2xl">{tool.icon}</span>
+            <div>
+              <h2 className="font-semibold text-slate-900">{tool.title}</h2>
+              <p className="text-xs text-slate-500">{tool.desc}</p>
             </div>
-          )}
+          </div>
 
-          {tab === 'bio' && (
-            <div className="space-y-4">
-              <h2 className="font-semibold text-slate-900">Generar Bio Profesional</h2>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tu nombre</label>
-                <input type="text" value={bioForm.name} onChange={e => setBioForm({ ...bioForm, name: e.target.value })} className="input-field" placeholder="Ej: Ana García" />
+          <div className="space-y-4" onKeyDown={handleKeyDown}>
+            {tool.fields.map(field => (
+              <div key={field.key}>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{field.label}</label>
+                {field.type === 'select' ? (
+                  <select
+                    value={formValues[field.key] || field.options[0]}
+                    onChange={e => updateField(field.key, e.target.value)}
+                    className="input-field"
+                  >
+                    {field.options.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                ) : field.type === 'textarea' ? (
+                  <textarea
+                    value={formValues[field.key] || ''}
+                    onChange={e => updateField(field.key, e.target.value)}
+                    className="input-field"
+                    placeholder={field.placeholder}
+                    rows={field.rows || 3}
+                  />
+                ) : (
+                  <input
+                    type={field.type}
+                    value={formValues[field.key] || ''}
+                    onChange={e => updateField(field.key, e.target.value)}
+                    className="input-field"
+                    placeholder={field.placeholder}
+                  />
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tu rol</label>
-                <input type="text" value={bioForm.role} onChange={e => setBioForm({ ...bioForm, role: e.target.value })} className="input-field" placeholder="Ej: Diseñadora UX / Desarrollador Web" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Años de experiencia</label>
-                <input type="number" value={bioForm.years} onChange={e => setBioForm({ ...bioForm, years: e.target.value })} className="input-field" placeholder="Ej: 5" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Estilo</label>
-                <select value={bioForm.template} onChange={e => setBioForm({ ...bioForm, template: Number(e.target.value) })} className="input-field">
-                  {bios.map((b, i) => <option key={i} value={i}>{b.title}</option>)}
-                </select>
-              </div>
-              <button onClick={generateBio} className="btn-primary">Generar Bio ✨</button>
-            </div>
-          )}
+            ))}
 
-          {tab === 'proposal' && (
-            <div className="space-y-4">
-              <h2 className="font-semibold text-slate-900">Mejorar Propuesta</h2>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Contenido de la propuesta</label>
-                <textarea value={proposalForm.content} onChange={e => setProposalForm({ ...proposalForm, content: e.target.value })} className="input-field" rows={6} placeholder="Pegá el texto de tu propuesta acá..." />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Mejora a aplicar</label>
-                <select value={proposalForm.enhancer} onChange={e => setProposalForm({ ...proposalForm, enhancer: Number(e.target.value) })} className="input-field">
-                  {proposalEnhancers.map((p, i) => <option key={i} value={i}>{p.title}</option>)}
-                </select>
-              </div>
-              <button onClick={enhanceProposal} className="btn-primary">Mejorar ✨</button>
-            </div>
-          )}
+            <button
+              onClick={handleGenerate}
+              disabled={loading}
+              className="btn-primary w-full flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Generando...
+                </>
+              ) : (
+                <>✨ Generar con IA</>
+              )}
+            </button>
+
+            <p className="text-xs text-slate-400 text-center">
+              {loading ? 'Procesando con GPT-4o-mini...' : 'Enter ↵  ·  Ctrl+Enter ↵  para generar'}
+            </p>
+          </div>
         </div>
 
         {/* Result Panel */}
-        <div className="card p-6">
+        <div className="card p-6 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-slate-900">Resultado</h2>
-            {result && (
-              <button onClick={() => { navigator.clipboard.writeText(result); toast.success('Copiado!') }}
-                className="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all font-medium">
-                📋 Copiar
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {result && (
+                <>
+                  <button
+                    onClick={() => {
+                      setFormValues(prev => {
+                        // Intentar rellenar el campo de contenido con el resultado
+                        const contentField = tool.fields.find(f => f.key === 'content')
+                        return contentField ? { ...prev, [contentField.key]: result } : prev
+                      })
+                      setResult('')
+                    }}
+                    className="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all font-medium"
+                    title="Usar como entrada"
+                  >
+                    🔄 Usar como input
+                  </button>
+                  <button
+                    onClick={copyResult}
+                    className="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all font-medium"
+                  >
+                    📋 Copiar
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-          {result ? (
-            <pre className="whitespace-pre-wrap text-sm text-slate-700 font-sans bg-slate-50 rounded-lg p-4 max-h-[500px] overflow-y-auto">{result}</pre>
+
+          {/* Result display */}
+          {loading ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12">
+              <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-sm text-slate-500 animate-pulse">La IA está pensando...</p>
+              <p className="text-xs text-slate-400 mt-1">Procesando con GPT-4o-mini</p>
+            </div>
+          ) : result ? (
+            <div className="flex-1">
+              <div className="bg-gradient-to-br from-violet-50 to-white rounded-lg p-4 max-h-[500px] overflow-y-auto border border-violet-100">
+                <pre className="whitespace-pre-wrap text-sm text-slate-700 font-sans leading-relaxed">{result}</pre>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs text-slate-400">
+                  Generado con {activeTool === 'contract_clause' ? 'GPT-4o-mini ⚖️' : 'GPT-4o-mini ✨'}
+                </span>
+                <span className="text-xs text-slate-400">
+                  {result.split(' ').length} palabras
+                </span>
+              </div>
+            </div>
           ) : (
-            <div className="text-center py-12 text-slate-400">
-              <p className="text-4xl mb-3">✨</p>
-              <p className="text-sm">Completá el formulario y generá tu contenido</p>
+            <div className="flex-1 flex flex-col items-center justify-center py-12 text-slate-400">
+              <span className="text-5xl mb-4">{tool.icon}</span>
+              <p className="text-sm font-medium">Completá los campos y generá contenido</p>
+              <p className="text-xs mt-1">Con tecnología OpenRouter + GPT-4o-mini</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Quick Tips */}
+      <div className="card p-4 mt-6 bg-gradient-to-r from-violet-50 to-transparent">
+        <div className="flex items-start gap-3">
+          <span className="text-lg">💡</span>
+          <div>
+            <p className="text-sm font-medium text-slate-900">Pro tip</p>
+            <p className="text-xs text-slate-600 mt-0.5">
+              {activeTool === 'email' && 'Usá "Follow-up" + "Urgente" para recuperar clientes que no respondieron.'}
+              {activeTool === 'bio' && 'Una bio corta funciona mejor en LinkedIn. Usá la versión "Casual" para redes sociales.'}
+              {activeTool === 'proposal' && 'Combiná "Urgencia" + "Garantía" para maximizar conversión.'}
+              {activeTool === 'rewrite' && 'Probá "Acortar" para resumir textos largos en 2-3 párrafos.'}
+              {activeTool === 'contract_clause' && 'Generá "Todo el contrato básico" y personalizalo.'}
+              {activeTool === 'ideas' && 'Pedí 10 ideas y usá las mejores 3. La IA a veces da sorpresas.'}
+              {activeTool === 'tasks' && 'Desglosá proyectos grandes en tareas para no abrumarte.'}
+              {activeTool === 'outreach' && 'Los mensajes cálidos tienen 3x más respuesta que los fríos.'}
+            </p>
+          </div>
         </div>
       </div>
     </div>

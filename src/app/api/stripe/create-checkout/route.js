@@ -13,6 +13,14 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
     }
 
+    // Map price ID to plan type
+    const PRICE_TO_PLAN = {
+      'price_1TceAHIKNlA3QlU4l77jf9Lv': 'starter',
+      'price_1TceALIKNlA3QlU4AQulK1AI': 'pro',
+      'price_1TceAOIKNlA3QlU4FyCto5ie': 'ai',
+    }
+    const planType = PRICE_TO_PLAN[priceId] || 'pro'
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -20,6 +28,7 @@ export async function POST(req) {
       client_reference_id: userId,
       metadata: {
         userId,
+        planType,
         affiliateCode: affiliateCode || '',
       },
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?checkout=success`,
@@ -27,6 +36,7 @@ export async function POST(req) {
       subscription_data: {
         metadata: {
           userId,
+          planType,
           affiliateCode: affiliateCode || '',
         },
       },

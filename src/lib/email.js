@@ -4,7 +4,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null
 
-const FROM = 'NEXUS <notifications@nexus.app>'
+const FROM = 'NEXUS <onboarding@resend.dev>'
 
 function layout(content) {
   return `<!DOCTYPE html>
@@ -81,5 +81,150 @@ export function invoiceReminderEmail(invoiceNumber, amount, dueDate) {
 <p><strong>Vencimiento:</strong> ${dueDate}</p>
 <p>Si ya realizaste el pago, ignorá este mensaje.</p>
 <p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://nexus.app'}/dashboard/invoices" class="btn">Ver Factura</a></p>`,
+  }
+}
+
+// ═══════════════════════════════════════════
+// EMAIL MARKETING — Trial Sequence (7 days)
+// ═══════════════════════════════════════════
+
+export function trialDayEmail(day, name) {
+  const emails = {
+    1: {
+      subject: '🎯 Día 1 — Tu primer paso en NEXUS',
+      html: `<h2 style="margin-bottom:16px">¡Arrancamos, ${name}!</h2>
+<p>Bienvenido al día 1 de tu prueba gratuita. Hoy te voy a mostrar las herramientas esenciales para que empieces a organizar tu negocio.</p>
+<p style="padding-left:16px">
+✅ <strong>Task Manager:</strong> Creá tu primera tarea<br>
+✅ <strong>Quick Notes:</strong> Capturá una idea al instante<br>
+✅ <strong>Client Directory:</strong> Agregá tu primer cliente
+</p>
+<p>No necesitas configuración previa. Solo entrá y probá.</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard" class="btn">Ir al Dashboard</a></p>`,
+    },
+    2: {
+      subject: '📊 Día 2 — Organizá tus proyectos',
+      html: `<h2 style="margin-bottom:16px">Proyectos al día, ${name}</h2>
+<p>El día 2 es para que empieces a ver el poder de NEXUS. El Pipeline CRM y Kanban Projects te van a cambiar la forma de trabajar.</p>
+<p style="padding-left:16px">
+📊 <strong>Pipeline CRM:</strong> Seguí tus leads en 7 etapas<br>
+📋 <strong>Kanban Projects:</strong> Arrastrá y soltá tus tareas<br>
+⏱️ <strong>Time Tracker:</strong> Registrá tu tiempo y facturá
+</p>
+<p>¿Probaste el Pipeline?</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/pipeline" class="btn">Ir a Pipeline</a></p>`,
+    },
+    3: {
+      subject: '🤖 Día 3 — IA que trabaja por vos',
+      html: `<h2 style="margin-bottom:16px">Tu asistente IA, ${name}</h2>
+<p>NEXUS tiene 9 herramientas de IA integradas. Escribí emails, propuestas, contratos y más con un solo clic.</p>
+<p style="padding-left:16px">
+✍️ <strong>AI Email Writer:</strong> Respondé clientes al instante<br>
+📄 <strong>AI Proposal:</strong> Propuestas que cierran ventas<br>
+⚖️ <strong>AI Contract:</strong> Contratos profesionales en 10 segundos
+</p>
+<p>Probá la IA ahora:</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/ai" class="btn">Probar AI Tools</a></p>`,
+    },
+    4: {
+      subject: '💰 Día 4 — Facturá y cobrá online',
+      html: `<h2 style="margin-bottom:16px">Llega el dinero, ${name}</h2>
+<p>Con NEXUS podés facturar y cobrar con Stripe directo desde la plataforma. Tus clientes reciben un portal exclusivo.</p>
+<p style="padding-left:16px">
+💳 <strong>Facturas + Stripe:</strong> Cobrá con tarjeta<br>
+🔗 <strong>Client Portal:</strong> Tu cliente ve todo online<br>
+📈 <strong>Tax Dashboard:</strong> Reportes financieros automáticos
+</p>
+<p>¿Vas a facturar este mes? Hacelo con NEXUS.</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/invoices" class="btn">Crear Factura</a></p>`,
+    },
+    5: {
+      subject: '🤝 Día 5 — Crece con tu red',
+      html: `<h2 style="margin-bottom:16px">Tu red = tus ingresos, ${name}</h2>
+<p>NEXUS tiene un sistema de afiliados que te paga automáticamente. Compartí tu link único y ganá 25% recurrente.</p>
+<p style="padding-left:16px">
+🔗 <strong>Link único:</strong> Cada miembro tiene su código<br>
+🎰 <strong>100 promos semanales:</strong> Comisiones de hasta 75%<br>
+💸 <strong>Pagos automáticos:</strong> Stripe Connect, sin intervención
+</p>
+<p>100 promociones rotan cada semana. Revisá cuál está activa hoy.</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/affiliate" class="btn">Ver mi Link de Afiliado</a></p>`,
+    },
+    6: {
+      subject: '🔥 Día 6 — Esto es lo que te estás perdiendo',
+      html: `<h2 style="margin-bottom:16px">${name}, ya casi se termina la prueba</h2>
+<p>Te quedan <strong>2 días</strong> de prueba gratuita. Estos son algunos números de gente que ya usa NEXUS:</p>
+<p style="padding-left:16px;background:#f8fafc;padding:16px;border-radius:8px;margin:16px 0">
+⭐ <strong>98%</strong> de satisfacción<br>
+📈 +42% de facturación promedio en el primer mes<br>
+⏱️ 3 horas/semana ahorradas en administración<br>
+🏆 Más de 5,000 freelancers activos
+</p>
+<p>No dejes pasar esta oportunidad. Elegí tu plan hoy y seguí escalando.</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/pricing" class="btn">Ver Planes</a></p>`,
+    },
+    7: {
+      subject: '⏰ Día 7 — Último día de tu prueba gratis',
+      html: `<h2 style="margin-bottom:16px">HOY es el día, ${name}</h2>
+<p>Tu prueba gratuita de 7 días <strong>termina HOY</strong>. Si no elegís un plan, vas a perder el acceso a todas las herramientas que probaste esta semana.</p>
+<p style="text-align:center;font-size:24px;font-weight:700;color:#7c3aed;padding:16px;background:#f5f3ff;border-radius:8px;margin:16px 0">
+  🚀 Starter desde $199/mes<br>
+  <span style="font-size:14px;font-weight:400;color:#6b7280">7 días gratis, cancelá cuando quieras</span>
+</p>
+<p>Elegí el plan que mejor se adapte a tu negocio:</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/pricing" class="btn">Elegir mi Plan</a></p>
+<p style="font-size:13px;color:#94a3b8">PD: Si ya te suscribiste, ignorá este mensaje y seguí disfrutando NEXUS 🚀</p>`,
+    },
+  }
+
+  return emails[day] || {
+    subject: `📬 Día ${day} — Seguí explorando NEXUS`,
+    html: `<h2 style="margin-bottom:16px">Seguimos, ${name}</h2>
+<p>Seguí usando NEXUS y descubrí todo lo que puede hacer por tu negocio.</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard" class="btn">Ir al Dashboard</a></p>`,
+  }
+}
+
+// ═══════════════════════════════════════════
+// EMAIL MARKETING — Upgrade Emails
+// ═══════════════════════════════════════════
+
+export function upgradeStarterToPro(name) {
+  return {
+    subject: '🚀 Pasate a Profesional y duplicá tu productividad',
+    html: `<h2 style="margin-bottom:16px">${name}, ya estás listo para el siguiente nivel</h2>
+<p>Llevás un tiempo con NEXUS Starter y vemos que le estás sacando provecho. Es hora de dar el salto a <strong>Profesional</strong>.</p>
+<p style="padding-left:16px">
+✅ <strong>Clientes ilimitados</strong> — sin límites<br>
+✅ <strong>Generador de Propuestas</strong> — cerrá más ventas<br>
+✅ <strong>Contratos + Firma Digital</strong> — profesional al instante<br>
+✅ <strong>File Vault + Google Drive</strong> — almacenamiento sin fin<br>
+✅ <strong>Portal para Clientes</strong> — ellos ven todo online<br>
+✅ <strong>Sistema de Afiliados</strong> — ingresos pasivos
+</p>
+<p style="text-align:center;font-size:20px;font-weight:700;color:#7c3aed;padding:12px;background:#f5f3ff;border-radius:8px;margin:16px 0">
+  Upgrade a Profesional: <span style="font-size:24px">$599/mes</span>
+</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/pricing" class="btn">Actualizar a Profesional</a></p>`,
+  }
+}
+
+export function upgradeProToAI(name) {
+  return {
+    subject: '🤖 Potenciá tu negocio con IA — Upgrade a Pro + AI',
+    html: `<h2 style="margin-bottom:16px">${name}, llevá tu freelance al futuro con IA</h2>
+<p>Ya usás NEXUS Profesional y sabés lo que es trabajar en serio. Ahora imaginate todo eso <strong>potenciado con Inteligencia Artificial</strong>.</p>
+<p style="padding-left:16px">
+🤖 <strong>AI Email Writer:</strong> Respondé emails en segundos<br>
+✍️ <strong>AI Bio Writer:</strong> Bio profesional para tus redes<br>
+📄 <strong>AI Proposal Enhancer:</strong> Propuestas que convierten más<br>
+🔄 <strong>AI Content Rewriter:</strong> Adaptá tu contenido al instante<br>
+⚖️ <strong>AI Contract Generator:</strong> Contratos sin errores
+</p>
+<p>Dejá que la IA haga el trabajo pesado mientras vos te enfocás en lo que importa: hacer crecer tu negocio.</p>
+<p style="text-align:center;font-size:20px;font-weight:700;color:#7c3aed;padding:12px;background:#f5f3ff;border-radius:8px;margin:16px 0">
+  Upgrade a Pro + AI: <span style="font-size:24px">$999/mes</span>
+</p>
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/pricing" class="btn">Actualizar a Pro + AI</a></p>`,
   }
 }
