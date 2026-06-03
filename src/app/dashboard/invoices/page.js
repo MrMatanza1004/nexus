@@ -466,7 +466,7 @@ export default function InvoicesPage() {
   .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #7c3aed; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
   @media print { .print-btn { display: none; } body { padding: 0; } }
 </style></head><body>
-  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+  <button class="print-btn" onclick="window.print()">Imprimir / PDF</button>
   <div class="header">
     <div class="brand"><h1>NEXUS</h1><p>El Sistema Operativo Freelance</p></div>
     <div class="invoice-title"><h2>FACTURA</h2><p>#${inv.number}</p></div>
@@ -490,7 +490,7 @@ export default function InvoicesPage() {
     <div><span>IVA (${taxPercent}%)</span><span>${formatCurrency(taxAmount)}</span></div>
     <div class="grand"><span>Total</span><span>${formatCurrency(total)}</span></div>
   </div>
-  ${inv.is_recurring ? `<p style="text-align:center;color:#94a3b8;font-size:13px;margin-top:20px;">🔄 Factura recurrente · ${inv.recurring_frequency}</p>` : ''}
+  ${inv.is_recurring ? `<p style="text-align:center;color:#94a3b8;font-size:13px;margin-top:20px;">Factura recurrente · ${inv.recurring_frequency}</p>` : ''}
   <div class="footer">
     <p>Generado con NEXUS · ${new Date().toLocaleDateString('es')}</p>
     <p style="margin-top:4px">Gracias por tu confianza</p>
@@ -702,7 +702,8 @@ export default function InvoicesPage() {
               <div className="flex items-center gap-3 text-sm text-slate-500 mb-3 flex-wrap">
                 {inv.clients?.name && (
                   <span className="inline-flex items-center gap-1">
-                    👤 {inv.clients.name}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3a4 4 0 100 8 4 4 0 000-8z" /></svg>
+                    {inv.clients.name}
                   </span>
                 )}
                 {inv.invoice_items?.length > 0 && (

@@ -81,12 +81,12 @@ export default function TaxPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">💰 Tax Dashboard</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Tax Dashboard</h1>
         <div className="flex items-center gap-3">
           <select value={year} onChange={e => setYear(Number(e.target.value))} className="input-field w-auto">
             {[2026, 2025, 2024, 2023, 2022].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
-          <button onClick={exportCSV} className="btn-primary text-sm">📥 Exportar CSV</button>
+          <button onClick={exportCSV} className="btn-primary text-sm"><svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10l5 5 5-5" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15V3" /></svg>Exportar CSV</button>
         </div>
       </div>
 
@@ -109,7 +109,7 @@ export default function TaxPage() {
       <div className="grid lg:grid-cols-2 gap-6 mb-8">
         {/* Monthly trend */}
         <div className="card p-6">
-          <h2 className="font-semibold text-slate-900 mb-4">📈 Tendencia mensual</h2>
+          <h2 className="font-semibold text-slate-900 mb-4"><svg className="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M23 6l-9.5 9.5-5-5L1 18" /></svg>Tendencia mensual</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={invoicesByMonth}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -125,7 +125,7 @@ export default function TaxPage() {
 
         {/* Expenses by category */}
         <div className="card p-6">
-          <h2 className="font-semibold text-slate-900 mb-4">📊 Gastos por categoria</h2>
+          <h2 className="font-semibold text-slate-900 mb-4"><svg className="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>Gastos por categoria</h2>
           {expensesChartData.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-8">No hay gastos registrados este año</p>
           ) : (
@@ -146,7 +146,7 @@ export default function TaxPage() {
 
       {/* Recent transactions */}
       <div className="card p-6">
-        <h2 className="font-semibold text-slate-900 mb-4">📋 Transacciones recientes</h2>
+        <h2 className="font-semibold text-slate-900 mb-4"><svg className="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>Transacciones recientes</h2>
         {data.invoices.length === 0 && data.expenses.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-8">No hay transacciones este año</p>
         ) : (

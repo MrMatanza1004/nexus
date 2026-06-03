@@ -30,7 +30,7 @@ export default function NotesPage() {
     setLoading(false)
   }
 
-  // 🔥 AI Assist functions
+  // AI Assist functions
   async function aiAction(action) {
     if (!form.content || form.content === '<p></p>') {
       return toast.error('Primero escribí contenido en la nota')
@@ -46,13 +46,13 @@ export default function NotesPage() {
       casual: 'Reescribí este texto en tono casual y conversacional.',
     }
 
-    const loading = toast.loading('🤖 IA trabajando...')
+    const loading = toast.loading('IA trabajando...')
     try {
       const { result } = await generateWithAI('rewrite', `${actionLabels[action]}\n\nTexto:\n${plainText}`)
       if (result) {
         const htmlResult = `<p>${result.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
         setForm({ ...form, content: htmlResult })
-        toast.success('✨ Nota mejorada con IA', { id: loading })
+        toast.success('Nota mejorada con IA', { id: loading })
       }
     } catch (err) {
       toast.error('Error: ' + err.message, { id: loading })
@@ -110,7 +110,7 @@ export default function NotesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">📝 Notas</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Notas</h1>
         {editing && <button onClick={() => { setEditing(null); setForm({ title: '', content: '', tags: '' }) }} className="text-sm text-slate-500 hover:text-slate-700">Cancelar edición</button>}
       </div>
 
@@ -125,7 +125,7 @@ export default function NotesPage() {
         {/* AI Assist Toolbar */}
         {form.content && form.content !== '<p></p>' && (
           <div className="flex items-center gap-2 flex-wrap border-t border-slate-100 pt-3 mt-1">
-            <span className="text-xs text-slate-400 font-medium mr-1">🤖 IA:</span>
+            <span className="text-xs text-slate-400 font-medium mr-1">IA:</span>
             <button type="button" onClick={() => aiAction('expand')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Expandir</button>
             <button type="button" onClick={() => aiAction('summarize')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Resumir</button>
             <button type="button" onClick={() => aiAction('improve')} className="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Mejorar redacción</button>
@@ -139,12 +139,12 @@ export default function NotesPage() {
         </div>
       </form>
 
-      <input type="text" value={search} onChange={e => setSearch(e.target.value)} className="input-field mb-4" placeholder="🔍 Buscar en notas..." />
+      <input type="text" value={search} onChange={e => setSearch(e.target.value)} className="input-field mb-4" placeholder="Buscar en notas..." />
 
       {loading ? (
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : filtered.length === 0 ? (
-        <div className="card p-12 text-center"><p className="text-4xl mb-3">📝</p><p className="text-slate-500">No hay notas todavía</p></div>
+        <div className="card p-12 text-center"><svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 2v6h6" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 13h2M8 17h6" /></svg><p className="text-slate-500">No hay notas todavía</p></div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(note => (

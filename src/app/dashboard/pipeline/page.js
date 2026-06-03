@@ -65,18 +65,18 @@ function DraggableCard({ lead, stage, onMove }) {
       <div className="flex gap-1 mt-2">
         {stageIndex > 0 && (
           <button onClick={(e) => { e.stopPropagation(); onMove(lead.id, STAGES[stageIndex - 1].key) }}
-            className="text-xs bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 transition-all" title="Mover atras">◀</button>
+            className="text-xs bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 transition-all" title="Mover atras"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 18l-6-6 6-6" /></svg></button>
         )}
         {stageIndex < STAGES.length - 1 && stage.key !== 'lost' && stage.key !== 'won' && (
           <button onClick={(e) => { e.stopPropagation(); onMove(lead.id, STAGES[stageIndex + 1].key) }}
-            className="text-xs bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 transition-all" title="Mover adelante">▶</button>
+            className="text-xs bg-slate-100 hover:bg-slate-200 rounded px-2 py-1 transition-all" title="Mover adelante"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 18l6-6-6-6" /></svg></button>
         )}
         {stage.key !== 'won' && stage.key !== 'lost' && (
           <>
             <button onClick={(e) => { e.stopPropagation(); onMove(lead.id, 'won') }}
-              className="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded px-2 py-1 transition-all" title="Ganado">✅</button>
+              className="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded px-2 py-1 transition-all" title="Ganado"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></button>
             <button onClick={(e) => { e.stopPropagation(); onMove(lead.id, 'lost') }}
-              className="text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded px-2 py-1 transition-all" title="Perdido">❌</button>
+              className="text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded px-2 py-1 transition-all" title="Perdido"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
           </>
         )}
       </div>
@@ -170,7 +170,7 @@ export default function PipelinePage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">📊 Pipeline de Ventas</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Pipeline de Ventas</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm">
           {showForm ? 'Cancelar' : '+ Nuevo Lead'}
         </button>
@@ -209,7 +209,7 @@ export default function PipelinePage() {
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : leads.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-4xl mb-3">📊</p>
+          <svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M23 6l-9.5 9.5-5-5L1 18" /></svg>
           <p className="text-slate-500">Aún no tenés leads. Empezá a trackear tus prospectos.</p>
         </div>
       ) : (
@@ -231,7 +231,7 @@ export default function PipelinePage() {
       )}
 
       <div className="card p-4 mt-4 text-sm text-slate-500">
-        💡 <strong>ProTip:</strong> Arrastrá las tarjetas entre columnas para mover leads. También podés usar los botones ◀ ▶ y ✅ ❌.
+        <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg> <strong>ProTip:</strong> Arrastrá las tarjetas entre columnas para mover leads. También podés usar los botones de navegación y acciones.
       </div>
     </div>
   )

@@ -57,7 +57,7 @@ export default function TestimonialsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">⭐ Testimonios</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Testimonios</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm">
           {showForm ? 'Cancelar' : '+ Nuevo Testimonio'}
         </button>
@@ -93,7 +93,7 @@ export default function TestimonialsPage() {
       {loading ? (
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : testimonials.length === 0 ? (
-        <div className="card p-12 text-center"><p className="text-4xl mb-3">⭐</p><p className="text-slate-500">No hay testimonios todavía</p></div>
+        <div className="card p-12 text-center"><svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg><p className="text-slate-500">No hay testimonios todavía</p></div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {testimonials.map(t => (

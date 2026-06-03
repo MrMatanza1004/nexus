@@ -6,7 +6,7 @@ import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 const statuses = ['idea', 'in_progress', 'review', 'done', 'cancelled']
-const statusLabels = { idea: '💡 Idea', in_progress: '🔄 En Progreso', review: '🔍 Revisión', done: '✅ Completado', cancelled: '❌ Cancelado' }
+const statusLabels = { idea: 'Idea', in_progress: 'En Progreso', review: 'Revisión', done: 'Completado', cancelled: 'Cancelado' }
 const statusColors = { idea: 'bg-slate-100 text-slate-700', in_progress: 'bg-blue-100 text-blue-700', review: 'bg-amber-100 text-amber-700', done: 'bg-emerald-100 text-emerald-700', cancelled: 'bg-red-100 text-red-700' }
 
 export default function ProjectsPage() {
@@ -78,7 +78,7 @@ export default function ProjectsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">📁 Proyectos</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Proyectos</h1>
         <div className="flex items-center gap-3">
           <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-violet-100 text-violet-700' : 'text-slate-400 hover:text-slate-600'}`}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
@@ -126,7 +126,7 @@ export default function ProjectsPage() {
       {loading ? (
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : projects.length === 0 ? (
-        <div className="card p-12 text-center"><p className="text-4xl mb-3">📁</p><p className="text-slate-500">Todavía no hay proyectos</p></div>
+        <div className="card p-12 text-center"><svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" /></svg><p className="text-slate-500">Todavía no hay proyectos</p></div>
       ) : viewMode === 'kanban' ? (
         <div className="grid grid-cols-5 gap-3 overflow-x-auto pb-4">
           {statuses.map(status => (
@@ -141,7 +141,7 @@ export default function ProjectsPage() {
                     <h4 className="font-medium text-slate-900 text-sm mb-1">{project.name}</h4>
                     {project.clients?.name && <p className="text-xs text-slate-500 mb-2">{project.clients.name}</p>}
                     {project.budget && <p className="text-xs font-medium text-emerald-600">{formatCurrency(project.budget)}</p>}
-                    {project.deadline && <p className="text-xs text-slate-400 mt-1">📅 {formatDate(project.deadline)}</p>}
+                    {project.deadline && <p className="text-xs text-slate-400 mt-1"><svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9h18M21 5v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 3v4M17 3v4M3 13h18" /></svg>{formatDate(project.deadline)}</p>}
                   </div>
                 ))}
               </div>
@@ -156,11 +156,11 @@ export default function ProjectsPage() {
                 <h3 className="font-semibold text-slate-900">{project.name}</h3>
                 <span className={`badge text-xs ${statusColors[project.status]}`}>{statusLabels[project.status]}</span>
               </div>
-              {project.clients?.name && <p className="text-sm text-slate-500 mb-2">👤 {project.clients.name}</p>}
+              {project.clients?.name && <p className="text-sm text-slate-500 mb-2"><svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3a4 4 0 100 8 4 4 0 000-8z" /></svg>{project.clients.name}</p>}
               {project.description && <p className="text-sm text-slate-600 mb-3 line-clamp-2">{project.description}</p>}
               <div className="flex items-center justify-between text-xs text-slate-400">
                 {project.budget && <span>{formatCurrency(project.budget)}</span>}
-                {project.deadline && <span>📅 {formatDate(project.deadline)}</span>}
+                {project.deadline && <span><svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9h18M21 5v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 3v4M17 3v4M3 13h18" /></svg>{formatDate(project.deadline)}</span>}
               </div>
               <div className="flex gap-1 mt-3 pt-3 border-t border-slate-100">
                 {statuses.map(s => (

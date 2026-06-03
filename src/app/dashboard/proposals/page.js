@@ -125,13 +125,13 @@ export default function ProposalsPage() {
     const plainText = content.replace(/<[^>]*>/g, '').trim()
     if (!plainText) return toast.error('Escribí contenido antes de usar IA')
 
-    const loading = toast.loading('🤖 IA potenciando propuesta...')
+    const loading = toast.loading('IA potenciando propuesta...')
     try {
       const { result } = await generateWithAI('proposal', plainText, 'Aplicá todas las mejoras: urgencia, garantía, llamado a la acción, prueba social.')
       if (result) {
         const htmlResult = content.includes('<h') ? content : `<p>${result.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
         setForm({ ...form, description: htmlResult })
-        toast.success('✨ Propuesta potenciada con IA', { id: loading })
+        toast.success('Propuesta potenciada con IA', { id: loading })
       }
     } catch (err) {
       toast.error('Error: ' + err.message, { id: loading })
@@ -147,7 +147,7 @@ export default function ProposalsPage() {
       .footer{margin-top:50px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8}
       </style></head><body>
       <div style="text-align:right;margin-bottom:10px">
-        <button onclick="window.print()" style="padding:8px 20px;background:#7c3aed;color:white;border:none;border-radius:6px;cursor:pointer">🖨️ Imprimir / PDF</button>
+        <button onclick="window.print()" style="padding:8px 20px;background:#7c3aed;color:white;border:none;border-radius:6px;cursor:pointer">Imprimir / PDF</button>
       </div>
       ${p.content}
       <div class="footer">Generado con NEXUS - El Sistema Operativo Freelance</div>
@@ -160,7 +160,7 @@ export default function ProposalsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">📄 Propuestas</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Propuestas</h1>
         <button onClick={() => { setShowForm(!showForm); setEditId(null) }} className="btn-primary text-sm">
           {showForm ? 'Cancelar' : '+ Nueva Propuesta'}
         </button>
@@ -203,8 +203,8 @@ export default function ProposalsPage() {
               <div className="flex items-center justify-between mb-1">
               <label className="block text-sm font-medium text-slate-700">Contenido de la propuesta</label>
               <div className="flex items-center gap-2">
-                <button type="button" onClick={aiEnhance} className="text-xs bg-violet-100 hover:bg-violet-200 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">✨ Potenciar con IA</button>
-                <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">🔄 Generar automáticamente</button>
+                <button type="button" onClick={aiEnhance} className="text-xs bg-violet-100 hover:bg-violet-200 text-violet-700 px-3 py-1.5 rounded-lg transition-all font-medium">Potenciar con IA</button>
+                <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">Generar automáticamente</button>
               </div>
             </div>
             <TipTapEditor
@@ -221,7 +221,7 @@ export default function ProposalsPage() {
       {loading ? (
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : proposals.length === 0 ? (
-        <div className="card p-12 text-center"><p className="text-4xl mb-3">📄</p><p className="text-slate-500">No hay propuestas todavía. Creá la primera.</p></div>
+        <div className="card p-12 text-center"><svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 2v6h6" /></svg><p className="text-slate-500">No hay propuestas todavía. Creá la primera.</p></div>
       ) : (
         <div className="space-y-3">
           {proposals.map(p => (
@@ -234,9 +234,9 @@ export default function ProposalsPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-slate-500">
-                  {p.clients?.name && <span>👤 {p.clients.name}</span>}
+                  {p.clients?.name && <span><svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3a4 4 0 100 8 4 4 0 000-8z" /></svg>{p.clients.name}</span>}
                   {p.amount && <span className="font-medium text-emerald-600">{formatCurrency(p.amount)}</span>}
-                  <span>📅 {formatDate(p.created_at)}</span>
+                  <span><svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9h18M21 5v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 3v4M17 3v4M3 13h18" /></svg>{formatDate(p.created_at)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 ml-4">

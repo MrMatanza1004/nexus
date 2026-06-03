@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">⚙️ Configuración</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">Configuración</h1>
 
       {/* Plan / Subscription */}
       <div className="card p-6 mb-6">
@@ -120,14 +120,15 @@ export default function SettingsPage() {
             </p>
           </div>
           <span className={`badge ${hasSubscription ? 'badge-success' : 'badge-warning'}`}>
-            {hasSubscription ? '✅ Activo' : 'Sin suscripción'}
+            {hasSubscription ? <><svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Activo</> : 'Sin suscripción'}
           </span>
         </div>
 
         {hasSubscription ? (
           <div className="space-y-3">
             <button onClick={openBillingPortal} className="btn-primary w-full flex items-center justify-center gap-2">
-              💳 Gestionar Suscripción
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+              Gestionar Suscripción
             </button>
             <button
               onClick={() => setShowConfirm('cancel')}
@@ -190,7 +191,7 @@ export default function SettingsPage() {
 
       {/* Danger Zone */}
       <div className="card p-6 border-red-200 space-y-4">
-        <h2 className="font-semibold text-red-700">⚠️ Zona de Peligro</h2>
+        <h2 className="font-semibold text-red-700">Zona de Peligro</h2>
 
         {/* Cancel Subscription Confirmation */}
         {showConfirm === 'cancel' && (
