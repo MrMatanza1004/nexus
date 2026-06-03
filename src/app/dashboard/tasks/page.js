@@ -70,7 +70,7 @@ export default function TasksPage() {
   async function aiBreakdown() {
     if (!aiInput.trim()) return toast.error('Describí el proyecto')
     setAiLoading(true)
-    const loadingToast = toast.loading('🤖 La IA está desglosando el proyecto...')
+    const loadingToast = toast.loading('La IA está desglosando el proyecto...')
     try {
       const { result } = await generateWithAI('tasks', aiInput)
       // Parse result into tasks
@@ -102,7 +102,7 @@ export default function TasksPage() {
         const { data: newTasks, error } = await supabase.from('tasks').insert(inserts).select()
         if (!error && newTasks) {
           setTasks([...newTasks, ...tasks])
-          toast.success(`✅ ${newTasks.length} tareas creadas desde el proyecto`, { id: loadingToast })
+          toast.success(`${newTasks.length} tareas creadas desde el proyecto`, { id: loadingToast })
           setShowAI(false)
           setAiInput('')
         } else {
@@ -143,12 +143,13 @@ export default function TasksPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">📋 Tareas</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Tareas</h1>
         <button
           onClick={() => setShowAI(true)}
           className="btn-primary text-sm flex items-center gap-2"
         >
-          🤖 Desglosar proyecto
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.83 14.83l4.24 4.24 M9.17 9.17L4.93 4.93 M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" /></svg>
+          Desglosar proyecto
         </button>
       </div>
 
@@ -157,7 +158,7 @@ export default function TasksPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => !aiLoading && setShowAI(false)}>
           <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-slate-900">🤖 Desglosar proyecto con IA</h2>
+              <h2 className="font-semibold text-slate-900">Desglosar proyecto con IA</h2>
               <button onClick={() => setShowAI(false)} className="text-slate-400 hover:text-slate-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -179,7 +180,7 @@ export default function TasksPage() {
                     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                     Desglosando...
                   </>
-                ) : '🚀 Desglosar'}
+                ) : 'Desglosar'}
               </button>
             </div>
           </div>
@@ -197,9 +198,9 @@ export default function TasksPage() {
           onKeyDown={e => e.key === 'Enter' && addTask()}
         />
         <select value={newTask.priority} onChange={e => setNewTask({ ...newTask, priority: e.target.value })} className="input-field w-auto">
-          <option value="low">🟢 Baja</option>
-          <option value="medium">🟡 Media</option>
-          <option value="high">🔴 Alta</option>
+          <option value="low">Baja</option>
+          <option value="medium">Media</option>
+          <option value="high">Alta</option>
         </select>
         <input type="date" value={newTask.due_date} onChange={e => setNewTask({ ...newTask, due_date: e.target.value })} className="input-field w-auto" />
         <button onClick={addTask} className="btn-primary shrink-0">Agregar</button>
@@ -223,9 +224,9 @@ export default function TasksPage() {
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : filtered.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-4xl mb-3">🎉</p>
+          <svg className="w-10 h-10 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           <p className="text-slate-500">No hay tareas {filter !== 'all' ? (filter === 'done' ? 'completadas' : 'pendientes') : ''}</p>
-          <p className="text-xs text-slate-400 mt-2">Usá "🤖 Desglosar proyecto" para generar tareas desde una descripción</p>
+          <p className="text-xs text-slate-400 mt-2">Usá "Desglosar proyecto" para generar tareas desde una descripción</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -240,7 +241,7 @@ export default function TasksPage() {
                   {task.priority === 'high' && <span className="badge-danger">Alta</span>}
                   {task.priority === 'medium' && <span className="badge-warning">Media</span>}
                   {task.priority === 'low' && <span className="badge-info">Baja</span>}
-                  {task.due_date && <span className="text-xs text-slate-400">📅 {formatDate(task.due_date)}</span>}
+                  {task.due_date && <span className="text-xs text-slate-400"><svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{formatDate(task.due_date)}</span>}
                 </div>
               </div>
               <button onClick={() => deleteTask(task.id)} className="text-slate-300 hover:text-red-500 transition-colors p-1">

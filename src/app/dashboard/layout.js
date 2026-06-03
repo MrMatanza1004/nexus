@@ -15,31 +15,57 @@ import {
   Settings,
 } from 'lucide-react'
 
-const sidebarItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-  { icon: TrendingUp, label: 'Pipeline', href: '/dashboard/pipeline' },
-  { icon: CheckSquare, label: 'Tareas', href: '/dashboard/tasks' },
-  { icon: Users, label: 'Clientes', href: '/dashboard/clients' },
-  { icon: FolderKanban, label: 'Proyectos', href: '/dashboard/projects' },
-  { icon: Mail, label: 'Correo', href: '/dashboard/email' },
-  { icon: Calendar, label: 'Calendario', href: '/dashboard/calendar' },
-  { icon: FileText, label: 'Notas', href: '/dashboard/notes' },
-  { icon: BookOpen, label: 'Diario', href: '/dashboard/journal' },
-  { icon: FileSignature, label: 'Propuestas', href: '/dashboard/proposals' },
-  { icon: Scale, label: 'Contratos', href: '/dashboard/contracts' },
-  { icon: CreditCard, label: 'Gastos', href: '/dashboard/expenses' },
-  { icon: Receipt, label: 'Facturas', href: '/dashboard/invoices' },
-  { icon: Clock, label: 'Tiempo', href: '/dashboard/time' },
-  { icon: HardDrive, label: 'Archivos', href: '/dashboard/files' },
-  { icon: Bot, label: 'AI Tools', href: '/dashboard/ai' },
-  { icon: DollarSign, label: 'Tax Dashboard', href: '/dashboard/tax' },
-  { icon: Handshake, label: 'Afiliados', href: '/dashboard/affiliate' },
-  { icon: Target, label: 'Metas', href: '/dashboard/goals' },
-  { icon: Star, label: 'Testimonios', href: '/dashboard/testimonials' },
-  { icon: MessageSquare, label: 'Feedback', href: '/dashboard/feedback' },
-  { icon: BarChart3, label: 'Analíticas', href: '/dashboard/analytics' },
-  { icon: Shield, label: 'Admin', href: '/dashboard/admin', adminOnly: true },
-  { icon: Settings, label: 'Configuración', href: '/dashboard/settings' },
+const sidebarGroups = [
+  {
+    label: 'Gestión',
+    items: [
+      { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+      { icon: TrendingUp, label: 'Pipeline', href: '/dashboard/pipeline' },
+      { icon: CheckSquare, label: 'Tareas', href: '/dashboard/tasks' },
+      { icon: Users, label: 'Clientes', href: '/dashboard/clients' },
+      { icon: FolderKanban, label: 'Proyectos', href: '/dashboard/projects' },
+    ],
+  },
+  {
+    label: 'Operaciones',
+    items: [
+      { icon: Receipt, label: 'Facturas', href: '/dashboard/invoices' },
+      { icon: CreditCard, label: 'Gastos', href: '/dashboard/expenses' },
+      { icon: Clock, label: 'Tiempo', href: '/dashboard/time' },
+      { icon: Mail, label: 'Correo', href: '/dashboard/email' },
+      { icon: Calendar, label: 'Calendario', href: '/dashboard/calendar' },
+    ],
+  },
+  {
+    label: 'Contenido',
+    items: [
+      { icon: FileSignature, label: 'Propuestas', href: '/dashboard/proposals' },
+      { icon: Scale, label: 'Contratos', href: '/dashboard/contracts' },
+      { icon: FileText, label: 'Notas', href: '/dashboard/notes' },
+      { icon: BookOpen, label: 'Diario', href: '/dashboard/journal' },
+      { icon: HardDrive, label: 'Archivos', href: '/dashboard/files' },
+    ],
+  },
+  {
+    label: 'Crecimiento',
+    items: [
+      { icon: Bot, label: 'AI Tools', href: '/dashboard/ai' },
+      { icon: Handshake, label: 'Afiliados', href: '/dashboard/affiliate' },
+      { icon: Target, label: 'Metas', href: '/dashboard/goals' },
+      { icon: BarChart3, label: 'Analíticas', href: '/dashboard/analytics' },
+      { icon: DollarSign, label: 'Tax Dashboard', href: '/dashboard/tax' },
+      { icon: Star, label: 'Testimonios', href: '/dashboard/testimonials' },
+      { icon: MessageSquare, label: 'Feedback', href: '/dashboard/feedback' },
+    ],
+  },
+  {
+    label: 'Sistema',
+    adminOnly: true,
+    items: [
+      { icon: Shield, label: 'Admin', href: '/dashboard/admin' },
+      { icon: Settings, label: 'Configuración', href: '/dashboard/settings' },
+    ],
+  },
 ]
 
 export default function DashboardLayout({ children }) {
@@ -61,11 +87,6 @@ export default function DashboardLayout({ children }) {
           return
         }
         setUser(session.user)
-
-        // Verificar estado de Google Drive via Nango
-        const meta = session.user?.user_metadata || {}
-        const nangoConnections = meta.nango_connections || {}
-        const driveConnected = !!nangoConnections['google-drive'] || !!meta.drive_access_token
       } catch {
         // Silently fail
       } finally {
@@ -98,7 +119,7 @@ export default function DashboardLayout({ children }) {
     <div className="min-h-screen flex pt-16">
       {/* Sidebar */}
       <aside className={`fixed left-0 top-16 bottom-0 w-64 bg-slate-900 text-white z-30 transform transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 overflow-y-auto`}>
-        <div className="p-4">
+        <div className="p-4 pb-24">
           <div className="flex items-center gap-2 mb-6 px-3">
               <Logo variant="icon" />
               <div>
@@ -107,16 +128,34 @@ export default function DashboardLayout({ children }) {
               </div>
           </div>
 
-          <nav className="space-y-1">
-            {sidebarItems.filter(item => item.adminOnly ? isAdmin : true).map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`sidebar-link text-sm ${pathname === item.href ? 'sidebar-link-active' : ''}`}
-                >
-                  <item.icon className="w-4 h-4 shrink-0" />
-                {item.label}
-              </Link>
+          <nav className="space-y-6">
+            {sidebarGroups
+              .filter(group => group.adminOnly ? isAdmin : true)
+              .map((group) => (
+                <div key={group.label}>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500 px-3 mb-2">
+                    {group.label}
+                  </p>
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => {
+                      const isActive = pathname.startsWith(item.href) &&
+                        (item.href === '/dashboard'
+                          ? pathname === '/dashboard'
+                          : true)
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`sidebar-link text-sm ${isActive ? 'sidebar-link-active' : ''}`}
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          <item.icon className="w-4 h-4 shrink-0" />
+                          {item.label}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
             ))}
           </nav>
 

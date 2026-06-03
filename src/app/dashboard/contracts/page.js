@@ -39,12 +39,12 @@ export default function ContractsPage() {
 
   async function handleGenerate() {
     const client = clients.find(c => c.id === form.client_id)
-    const loadingToast = toast.loading('🤖 IA generando contrato...')
+    const loadingToast = toast.loading('Generando contrato con IA...')
     try {
       const prompt = `Cliente: ${client?.name || '[Cliente]'}\nServicio: ${form.title || '[Servicio]'}\nMonto: $${form.amount || '[Monto]'}\nPago: 50% inicio / 50% entrega\nExtras: ninguno`
       const { result } = await generateWithAI('contract', prompt)
       setForm({ ...form, content: result })
-      toast.success('✨ Contrato generado con IA', { id: loadingToast })
+      toast.success('Contrato generado con IA', { id: loadingToast })
     } catch (err) {
       toast.error('Error: ' + err.message, { id: loadingToast })
     }
@@ -88,7 +88,7 @@ export default function ContractsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">⚖️ Contratos</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Contratos</h1>
         <button onClick={() => { setShowForm(!showForm); setEditId(null) }} className="btn-primary text-sm">
           {showForm ? 'Cancelar' : '+ Nuevo Contrato'}
         </button>
@@ -116,7 +116,10 @@ export default function ContractsPage() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-sm font-medium text-slate-700">Contenido del contrato</label>
-              <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">✨ Generar con IA</button>
+              <button type="button" onClick={handleGenerate} className="text-xs text-violet-600 hover:text-violet-700 font-medium">
+                <svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.83 14.83l4.24 4.24 M9.17 9.17L4.93 4.93 M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" /></svg>
+                Generar con IA
+              </button>
             </div>
             <textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="input-field font-mono text-sm" rows={15} />
           </div>
@@ -135,7 +138,10 @@ export default function ContractsPage() {
       {loading ? (
         <div className="text-center py-12"><div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : contracts.length === 0 ? (
-        <div className="card p-12 text-center"><p className="text-4xl mb-3">⚖️</p><p className="text-slate-500">No hay contratos todavía</p></div>
+        <div className="card p-12 text-center">
+          <svg className="w-10 h-10 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l-3 6h6l-3-6z M4 22h16 M8 22V8 M16 22V8" /></svg>
+          <p className="text-slate-500">No hay contratos todavía</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {contracts.map(c => (
@@ -144,13 +150,13 @@ export default function ContractsPage() {
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="font-semibold text-slate-900">{c.title || 'Contrato'}</h3>
                   <span className={`badge ${c.signed ? 'badge-success' : c.status === 'sent' ? 'badge-info' : 'badge-warning'}`}>
-                    {c.signed ? '✅ Firmado' : c.status === 'sent' ? 'Enviado' : 'Borrador'}
+                    {c.signed ? <><svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Firmado</> : c.status === 'sent' ? 'Enviado' : 'Borrador'}
                   </span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-slate-500">
-                  {c.clients?.name && <span>👤 {c.clients.name}</span>}
+                  {c.clients?.name && <span><svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 3a4 4 0 100 8 4 4 0 000-8z" /></svg>{c.clients.name}</span>}
                   {c.amount && <span className="font-medium text-emerald-600">{formatCurrency(c.amount)}</span>}
-                  <span>📅 {formatDate(c.created_at)}</span>
+                  <span><svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{formatDate(c.created_at)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 ml-4">

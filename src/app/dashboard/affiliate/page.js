@@ -30,7 +30,7 @@ export default function AffiliatePage() {
     // Check if returning from Stripe Connect onboarding
     const params = new URLSearchParams(window.location.search)
     if (params.get('connect') === 'success') {
-      toast.success('✅ Pagos automáticos configurados')
+      toast.success('Pagos automáticos configurados')
       setConnectReady(true)
       window.history.replaceState({}, '', '/dashboard/affiliate')
     }
@@ -80,7 +80,7 @@ export default function AffiliatePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">🤝 Afiliados</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Afiliados</h1>
         <p className="text-slate-500 mt-1">Compartí tu link y ganá comisiones automáticas</p>
       </div>
 
@@ -90,7 +90,10 @@ export default function AffiliatePage() {
       {/* Auto-payout CTA */}
       <div className={`card p-5 mb-6 flex items-center justify-between gap-4 border-2 ${connectReady ? 'border-emerald-200 bg-emerald-50' : 'border-violet-200 bg-violet-50'}`}>
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{connectReady ? '✅' : '💳'}</span>
+          <span className="text-2xl">{connectReady
+            ? <svg className="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            : <svg className="w-7 h-7 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+          }</span>
           <div>
             <p className="font-semibold text-slate-900 text-sm">
               {connectReady ? 'Pagos automáticos activos' : 'Activar pagos automáticos'}
@@ -110,7 +113,7 @@ export default function AffiliatePage() {
           >
             {connectLoading ? (
               <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Conectando...</>
-            ) : '⚡ Configurar pagos'}
+            ) : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Configurar pagos</>}
           </button>
         )}
       </div>
@@ -137,14 +140,14 @@ export default function AffiliatePage() {
         <div className="flex items-center gap-3">
           <input type="text" value={affiliateLink} readOnly className="input-field font-mono text-sm bg-slate-50" />
           <button onClick={copyLink} className={`btn-primary shrink-0 ${copied ? 'bg-emerald-500' : ''}`}>
-            {copied ? '✅ Copiado' : '📋 Copiar'}
+            {copied ? <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Copiado</> : <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> Copiar</>}
           </button>
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <span className="badge-info text-xs">25% comisión recurrente</span>
           <span className="badge-info text-xs">Cookies 30 días</span>
           <span className="badge-info text-xs">Pago automático</span>
-          {connectReady && <span className="badge-success text-xs">✅ Stripe Connect activo</span>}
+          {connectReady && <span className="badge-success text-xs"><svg className="w-3 h-3 inline-block mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg> Stripe Connect activo</span>}
         </div>
       </div>
 
@@ -160,7 +163,9 @@ export default function AffiliatePage() {
           ].map((tweet, i) => (
             <div key={i} className="bg-slate-50 rounded-lg p-3 text-sm text-slate-700 italic">
               {tweet}
-              <button onClick={() => { navigator.clipboard.writeText(tweet); toast.success('Copiado!') }} className="text-xs text-violet-600 hover:text-violet-700 ml-2">📋</button>
+              <button onClick={() => { navigator.clipboard.writeText(tweet); toast.success('Copiado!') }} className="text-xs text-violet-600 hover:text-violet-700 ml-2">
+                <svg className="w-3.5 h-3.5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              </button>
             </div>
           ))}
         </div>
@@ -185,7 +190,7 @@ export default function AffiliatePage() {
                   <span className="text-sm font-semibold text-emerald-600">{formatCurrency(r.commission_amount)}</span>
                 )}
                 <span className={`badge ${r.status === 'paid' ? 'badge-success' : 'badge-warning'}`}>
-                  {r.status === 'paid' ? '✅ Pagado' : 'Pendiente'}
+                  {r.status === 'paid' ? <><svg className="w-3.5 h-3.5 inline-block mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Pagado</> : 'Pendiente'}
                 </span>
               </div>
             </div>

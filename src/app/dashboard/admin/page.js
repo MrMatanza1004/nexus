@@ -10,7 +10,7 @@ import {
 
 const ADMIN_EMAIL = 'imthebow@gmail.com'
 
-function StatCard({ label, value, sub, icon, color }) {
+function StatCard({ label, value, sub, color }) {
   return (
     <div className="card p-5 relative overflow-hidden">
       <div className={`absolute top-0 right-0 w-20 h-20 -mr-6 -mt-6 rounded-full opacity-10 ${color}`} />
@@ -20,9 +20,25 @@ function StatCard({ label, value, sub, icon, color }) {
           <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
           {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
         </div>
-        <span className="text-2xl">{icon}</span>
+        <StatDot color={color} />
       </div>
     </div>
+  )
+}
+
+function StatDot({ color }) {
+  const dotColors = {
+    'bg-indigo-500': '#6366f1', 'bg-amber-500': '#f59e0b', 'bg-emerald-500': '#10b981',
+    'bg-sky-500': '#0ea5e9', 'bg-slate-500': '#64748b', 'bg-violet-500': '#8b5cf6',
+    'bg-blue-500': '#3b82f6', 'bg-cyan-500': '#06b6d4', 'bg-teal-500': '#14b8a6',
+    'bg-fuchsia-500': '#d946ef',
+  }
+  const c = dotColors[color] || '#8b5cf6'
+  return (
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" fill={c} opacity="0.2" />
+      <circle cx="12" cy="12" r="4" fill={c} />
+    </svg>
   )
 }
 
@@ -68,7 +84,7 @@ export default function AdminPage() {
   if (error) return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="card p-8 border-red-200 text-center max-w-md">
-        <span className="text-4xl block mb-4">🔒</span>
+        <svg className="w-10 h-10 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
         <h2 className="text-xl font-bold text-slate-900 mb-2">Acceso Restringido</h2>
         <p className="text-slate-600">{error}</p>
       </div>
@@ -87,33 +103,34 @@ export default function AdminPage() {
     <div className="space-y-6">
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">📊 Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
         <span className="text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full font-medium">
-          👑 {user?.email}
+          <svg className="w-3.5 h-3.5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l2.5 6.5L21 9l-5 4.5 1.5 7L12 16l-5.5 4.5L8 13.5 3 9l6.5-.5z" /></svg>
+          {user?.email}
         </span>
       </div>
 
       {/* ─── KPI Cards ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-        <StatCard label="Usuarios" value={stats.users?.total || 0} icon="👥" color="bg-indigo-500" />
-        <StatCard label="Nuevos / Semana" value={stats.users?.new_this_week || 0} icon="🌟" color="bg-amber-500" />
-        <StatCard label="Subs Activas" value={stats.users?.active_subscriptions || 0} icon="✅" color="bg-emerald-500" />
-        <StatCard label="En Prueba" value={stats.users?.trial || 0} icon="🔍" color="bg-sky-500" />
-        <StatCard label="Cancelados" value={stats.users?.cancelled || 0} icon="🚫" color="bg-slate-500" />
-        <StatCard label="Conversión" value={stats.users?.conversion_label || '0%'} sub={`${stats.users?.active_subscriptions || 0} pagaron`} icon="📈" color="bg-violet-500" />
+        <StatCard label="Usuarios" value={stats.users?.total || 0} color="bg-indigo-500" />
+        <StatCard label="Nuevos / Semana" value={stats.users?.new_this_week || 0} color="bg-amber-500" />
+        <StatCard label="Subs Activas" value={stats.users?.active_subscriptions || 0} color="bg-emerald-500" />
+        <StatCard label="En Prueba" value={stats.users?.trial || 0} color="bg-sky-500" />
+        <StatCard label="Cancelados" value={stats.users?.cancelled || 0} color="bg-slate-500" />
+        <StatCard label="Conversión" value={stats.users?.conversion_label || '0%'} sub={`${stats.users?.active_subscriptions || 0} pagaron`} color="bg-violet-500" />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3">
-        <StatCard label="Ingresos Totales" value={fmt(stats.revenue?.total)} sub={stats.revenue?.currency || 'MXN'} icon="💰" color="bg-emerald-500" />
-        <StatCard label="Ingresos este Mes" value={fmt(stats.revenue?.this_month)} sub={`${stats.revenue?.total_charges || 0} transacciones`} icon="📈" color="bg-violet-500" />
-        <StatCard label="Clientes Stripe" value={stats.stripe?.total_customers || 0} icon="🏦" color="bg-blue-500" />
+        <StatCard label="Ingresos Totales" value={fmt(stats.revenue?.total)} sub={stats.revenue?.currency || 'MXN'} color="bg-emerald-500" />
+        <StatCard label="Ingresos este Mes" value={fmt(stats.revenue?.this_month)} sub={`${stats.revenue?.total_charges || 0} transacciones`} color="bg-violet-500" />
+        <StatCard label="Clientes Stripe" value={stats.stripe?.total_customers || 0} color="bg-blue-500" />
       </div>
 
       {/* ─── Charts Row ─── */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Revenue Chart */}
         <div className="card p-5">
-          <h3 className="font-semibold text-slate-900 mb-1">💰 Ingresos (últimos 30 días)</h3>
+          <h3 className="font-semibold text-slate-900 mb-1">Ingresos (últimos 30 días)</h3>
           <p className="text-xs text-slate-400 mb-4">MXN — Datos en vivo de Stripe</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -136,7 +153,7 @@ export default function AdminPage() {
 
         {/* Signups Chart */}
         <div className="card p-5">
-          <h3 className="font-semibold text-slate-900 mb-1">📊 Nuevos Registros (30 días)</h3>
+          <h3 className="font-semibold text-slate-900 mb-1">Nuevos Registros (30 días)</h3>
           <p className="text-xs text-slate-400 mb-4">Usuarios por día — Supabase en vivo</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -156,7 +173,7 @@ export default function AdminPage() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Plan Pie */}
         <div className="card p-5">
-          <h3 className="font-semibold text-slate-900 mb-1">📋 Distribución de Planes</h3>
+          <h3 className="font-semibold text-slate-900 mb-1">Distribución de Planes</h3>
           <p className="text-xs text-slate-400 mb-4">En vivo desde Supabase</p>
           {planPie.length > 0 ? (
             <div className="flex items-center gap-6">
@@ -190,7 +207,7 @@ export default function AdminPage() {
 
         {/* Stripe Status */}
         <div className="card p-5">
-          <h3 className="font-semibold text-slate-900 mb-3">💳 Estado Stripe</h3>
+          <h3 className="font-semibold text-slate-900 mb-3">Estado Stripe</h3>
           <div className="space-y-4">
             {[
               { label: 'Suscripciones Activas', value: stats.stripe?.active_subscriptions || 0, color: 'bg-emerald-500', max: (stats.stripe?.active_subscriptions || 0) + (stats.stripe?.past_due || 0) + (stats.stripe?.canceled || 0) || 1 },
@@ -217,14 +234,14 @@ export default function AdminPage() {
 
       {/* ─── AFFILIATES DETALLADO ─── */}
       <div className="card p-5">
-        <h3 className="font-semibold text-slate-900 mb-1">🔗 Afiliados — Detalle por Código</h3>
+        <h3 className="font-semibold text-slate-900 mb-1">Afiliados — Detalle por Código</h3>
         <p className="text-xs text-slate-400 mb-4">En vivo desde Supabase</p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard label="Conversiones" value={stats.affiliate?.total_conversions || 0} icon="🔗" color="bg-cyan-500" />
-          <StatCard label="Pagadas" value={stats.affiliate?.paid_conversions || 0} icon="✅" color="bg-teal-500" />
-          <StatCard label="Pendientes" value={stats.affiliate?.pending_conversions || 0} icon="⏳" color="bg-amber-500" />
-          <StatCard label="Comisiones Pagadas" value={fmt(stats.affiliate?.total_commissions_paid)} icon="💸" color="bg-fuchsia-500" />
+          <StatCard label="Conversiones" value={stats.affiliate?.total_conversions || 0} color="bg-cyan-500" />
+          <StatCard label="Pagadas" value={stats.affiliate?.paid_conversions || 0} color="bg-teal-500" />
+          <StatCard label="Pendientes" value={stats.affiliate?.pending_conversions || 0} color="bg-amber-500" />
+          <StatCard label="Comisiones Pagadas" value={fmt(stats.affiliate?.total_commissions_paid)} color="bg-fuchsia-500" />
         </div>
 
         {stats.affiliate?.affiliates?.length > 0 ? (
@@ -260,7 +277,7 @@ export default function AdminPage() {
           </div>
         ) : (
           <div className="text-center py-8 text-slate-400">
-            <p className="text-lg mb-1">🔗</p>
+            <svg className="w-8 h-8 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
             <p>Sin conversiones de afiliados todavía</p>
             <p className="text-xs mt-1">Cuando un afiliado refiera a alguien y pague, aparecerá acá</p>
           </div>
@@ -270,7 +287,7 @@ export default function AdminPage() {
       {/* ─── ALL USERS + EXPORT ─── */}
       <div className="card p-5">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="font-semibold text-slate-900">📧 Todos los Usuarios Registrados</h3>
+          <h3 className="font-semibold text-slate-900">Todos los Usuarios Registrados</h3>
           <button
             onClick={() => {
               const header = 'Email,Plan,Fecha Registro,Código Afiliado\n'
@@ -287,7 +304,8 @@ export default function AdminPage() {
             }}
             className="btn-primary text-sm py-2 px-4"
           >
-            📥 Exportar CSV
+            <svg className="w-4 h-4 inline-block mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4 M7 10l5 5 5-5 M12 15V3" /></svg>
+            Exportar CSV
           </button>
         </div>
         <p className="text-xs text-slate-400 mb-4">{stats.all_profiles?.length || 0} usuarios registrados</p>
@@ -360,7 +378,7 @@ export default function AdminPage() {
 
       {/* ─── Recent Signups ─── */}
       <div className="card p-5">
-        <h3 className="font-semibold text-slate-900 mb-1">🆕 Últimos 10 Registros</h3>
+        <h3 className="font-semibold text-slate-900 mb-1">Últimos 10 Registros</h3>
         <p className="text-xs text-slate-400 mb-4">Usuarios más recientes</p>
         {stats.recent_signups?.length > 0 ? (
           <div className="overflow-x-auto">

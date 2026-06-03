@@ -134,7 +134,17 @@ export default function DashboardHome() {
             <Link href="/dashboard/clients" className="text-sm text-violet-600 font-medium hover:text-violet-700">Ver todos →</Link>
           </div>
           {recentClients.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">Todavía no tenés clientes. Creá el primero.</p>
+            <div className="text-center py-10">
+              <div className="w-14 h-14 rounded-xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
+                <Users className="w-7 h-7 text-violet-500" />
+              </div>
+              <p className="text-slate-900 font-semibold mb-1">Todavía no tenés clientes</p>
+              <p className="text-slate-400 text-sm mb-5">Agregá tu primer cliente para empezar.</p>
+              <Link href="/dashboard/clients" className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                <UserPlus className="w-4 h-4" />
+                Crear Cliente
+              </Link>
+            </div>
           ) : (
             <div className="space-y-3">
               {recentClients.map(client => (
@@ -161,7 +171,17 @@ export default function DashboardHome() {
             <Link href="/dashboard/tasks" className="text-sm text-violet-600 font-medium hover:text-violet-700">Ver todas →</Link>
           </div>
           {recentTasks.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">No tenés tareas pendientes. Todo al día.</p>
+            <div className="text-center py-10">
+              <div className="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                <CheckSquare className="w-7 h-7 text-emerald-500" />
+              </div>
+              <p className="text-slate-900 font-semibold mb-1">No tenés tareas pendientes</p>
+              <p className="text-slate-400 text-sm mb-5">Creá tu primera tarea y empezá a organizar tu día.</p>
+              <Link href="/dashboard/tasks" className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                <CheckSquare className="w-4 h-4" />
+                Crear Tarea
+              </Link>
+            </div>
           ) : (
             <div className="space-y-3">
               {recentTasks.map(task => (
