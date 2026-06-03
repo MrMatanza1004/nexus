@@ -106,7 +106,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/pricing"
-                  className="btn-outline inline-flex items-center justify-center text-base px-8 py-3.5"
+                  className="btn-outline inline-flex items-center justify-center text-base px-8 py-3.5 hover:bg-zinc-800"
                 >
                   Ver Planes
                 </Link>
@@ -142,15 +142,17 @@ export default function Home() {
             </p>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {/* Hero card: spans 2 cols */}
-            <PainCard item={painPoints[0]} span="md:col-span-2 md:row-span-2" imageHeight="h-72" />
-            {/* Right column: 2 cards stacked */}
-            <PainCard item={painPoints[1]} />
-            <PainCard item={painPoints[2]} />
-            {/* Bottom row: 3 cards, but already used 4 items → last 2 fill */}
-            <PainCard item={painPoints[3]} />
-            <PainCard item={painPoints[4]} />
+          <div className="space-y-4 md:space-y-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              {painPoints.slice(0, 2).map((item, i) => (
+                <PainCard key={i} item={item} imageHeight="h-52" />
+              ))}
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+              {painPoints.slice(2).map((item, i) => (
+                <PainCard key={i} item={item} imageHeight="h-44" />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -234,7 +236,7 @@ export default function Home() {
 
             {/* Right column: 2 stacked cards */}
             <div className="flex flex-col gap-6">
-              <div className="flex-1 card p-6 flex flex-col justify-center card-hover">
+              <div className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded-xl p-6 flex flex-col justify-center hover:border-zinc-700 hover:shadow-lg hover:shadow-black/20 transition-all duration-300">
                 <div className="w-10 h-10 rounded-lg bg-violet-600/15 flex items-center justify-center mb-4">
                   <svg className="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -243,7 +245,7 @@ export default function Home() {
                 <h3 className="font-bold text-white mb-1">Promociones Semanales</h3>
                 <p className="text-sm text-zinc-400">Comisiones de hasta 75%, bonos y sorteos. Rota cada semana.</p>
               </div>
-              <div className="flex-1 card p-6 flex flex-col justify-center card-hover">
+              <div className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded-xl p-6 flex flex-col justify-center hover:border-zinc-700 hover:shadow-lg hover:shadow-black/20 transition-all duration-300">
                 <div className="w-10 h-10 rounded-lg bg-violet-600/15 flex items-center justify-center mb-4">
                   <svg className="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -271,7 +273,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <div key={i} className="card p-6 border-zinc-800/60">
+              <div key={i} className="bg-zinc-900/80 border border-zinc-800 rounded-xl p-6">
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: 5 }).map((_, j) => (
                     <Star key={j} className="w-4 h-4 text-violet-400 fill-violet-400" />
@@ -372,7 +374,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/pricing"
-                className="btn-outline inline-flex items-center justify-center text-base px-10 py-3.5"
+                className="btn-outline inline-flex items-center justify-center text-base px-10 py-3.5 hover:bg-zinc-800"
               >
                 Ver Planes
               </Link>
@@ -390,7 +392,7 @@ export default function Home() {
 /*  Server-compatible sub-components (no hooks, no interactivity)     */
 /* ------------------------------------------------------------------ */
 
-function PainCard({ item, span = '', imageHeight = 'h-44' }) {
+function PainCard({ item, imageHeight = 'h-44' }) {
   const icons = {
     AlertCircle: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
     FileText: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
@@ -401,7 +403,7 @@ function PainCard({ item, span = '', imageHeight = 'h-44' }) {
 
   return (
     <ScrollReveal>
-      <div className={`card overflow-hidden card-hover group ${span}`}>
+      <div className="bg-zinc-900/80 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 hover:shadow-lg hover:shadow-black/20 transition-all duration-300 group">
         <img
           src={`https://images.unsplash.com/${item.img}?w=800&q=80&auto=format&fit=crop`}
           alt=""
@@ -441,7 +443,7 @@ function FeatureCard({ item, index }) {
 
   return (
     <ScrollReveal>
-      <div className={`group card p-5 card-hover relative overflow-hidden ${isAnchor ? 'border-violet-800/30' : ''}`}>
+      <div className={`group bg-zinc-900/80 border border-zinc-800 rounded-xl p-5 hover:border-zinc-700 hover:shadow-lg hover:shadow-black/20 transition-all duration-300 relative overflow-hidden ${isAnchor ? 'border-violet-800/30' : ''}`}>
         {isAnchor && (
           <div className="absolute inset-0 bg-gradient-to-br from-violet-600/8 to-transparent opacity-40 group-hover:opacity-60 transition-opacity" />
         )}
@@ -464,10 +466,10 @@ function FeatureCard({ item, index }) {
 function PricingCardShell({ name, price, original, desc, cta, featured = false, features }) {
   return (
     <div
-      className={`card p-8 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${
+      className={`bg-zinc-900/80 border border-zinc-800 rounded-xl p-8 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${
         featured
           ? 'border-violet-700 ring-1 ring-violet-700 shadow-xl scale-[1.02]'
-          : 'card-hover'
+          : 'hover:border-zinc-700 hover:shadow-lg hover:shadow-black/20'
       }`}
     >
       {featured && (
