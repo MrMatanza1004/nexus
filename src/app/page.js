@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { AnimatedCounter, ScrollReveal, LogoWall } from './home-client'
+import PricingCheckout from '@/components/PricingCheckout'
 
 /* ------------------------------------------------------------------ */
 /*  DESIGN READ: SaaS landing for freelance professionals (LatAm)     */
@@ -306,40 +307,12 @@ export default function Home() {
           </ScrollReveal>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8">
-            <PricingCardShell
-              name="Starter"
-              price="199"
-              original="399"
-              desc="Para quienes arrancan"
-              cta="Empezar"
-              features={['Task Manager', 'Quick Notes', 'Pomodoro Timer', 'Daily Journal', 'Hasta 5 clientes', 'Dashboard basico']}
-            />
-            <PricingCardShell
-              name="Profesional"
-              price="599"
-              original="899"
-              desc="El plan que elegi para mi"
-              cta="Elegir Profesional"
-              featured
-              features={[
-                'TODAS las herramientas', 'Clientes ilimitados', 'Propuestas con IA',
-                'Contratos con IA', 'Facturas + Stripe', 'Time Tracker',
-                'Kanban Projects', 'File Vault + Drive', 'Sistema de Afiliados',
-                'Client Portal', 'Metas y tracking', 'Historial completo',
-              ]}
-            />
-            <PricingCardShell
-              name="Profesional + AI"
-              price="999"
-              original="1499"
-              desc="Potenciado con inteligencia artificial"
-              cta="Elegir Pro + AI"
-              features={[
-                'Todo lo del plan Profesional', 'AI Email Writer', 'AI Bio Writer',
-                'AI Proposal Enhancer', 'AI Content Rewriter', 'AI Contract Generator',
-                'Soporte prioritario',
-              ]}
-            />
+            <PricingCardShell planId="starter" name="Starter" price="199" original="399" desc="Para quienes arrancan" cta="Empezar"
+              features={['Task Manager', 'Quick Notes', 'Pomodoro Timer', 'Daily Journal', 'Hasta 5 clientes', 'Dashboard basico']} />
+            <PricingCardShell planId="pro" name="Profesional" price="599" original="899" desc="El plan que elegi para mi" cta="Elegir Profesional" featured
+              features={['TODAS las herramientas', 'Clientes ilimitados', 'Propuestas con IA', 'Contratos con IA', 'Facturas + Stripe', 'Time Tracker', 'Kanban Projects', 'File Vault + Drive', 'Sistema de Afiliados', 'Client Portal', 'Metas y tracking', 'Historial completo']} />
+            <PricingCardShell planId="ai" name="Profesional + AI" price="999" original="1499" desc="Potenciado con inteligencia artificial" cta="Elegir Pro + AI"
+              features={['Todo lo del plan Profesional', 'AI Email Writer', 'AI Bio Writer', 'AI Proposal Enhancer', 'AI Content Rewriter', 'AI Contract Generator', 'Soporte prioritario']} />
           </div>
 
           <p className="text-center text-sm text-zinc-500">7 dias de prueba gratis. Sin tarjeta al registrarte.</p>
@@ -463,7 +436,7 @@ function FeatureCard({ item, index }) {
   )
 }
 
-function PricingCardShell({ name, price, original, desc, cta, featured = false, features }) {
+function PricingCardShell({ planId, name, price, original, desc, cta, featured = false, features }) {
   return (
     <div
       className={`bg-zinc-900/80 border border-zinc-800 rounded-xl p-8 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${
@@ -496,16 +469,7 @@ function PricingCardShell({ name, price, original, desc, cta, featured = false, 
           </li>
         ))}
       </ul>
-      <Link
-        href="/register"
-        className={`text-center font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 ${
-          featured
-            ? 'btn-primary'
-            : 'border border-zinc-700 text-zinc-300 hover:border-violet-600 hover:text-violet-400'
-        }`}
-      >
-        {cta}
-      </Link>
+      <PricingCheckout planId={planId} label={cta} featured={featured} />
     </div>
   )
 }

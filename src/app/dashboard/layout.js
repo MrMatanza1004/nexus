@@ -7,32 +7,39 @@ import { supabase } from '@/lib/supabase'
 import AffiliateSidebarWidget from '@/components/AffiliateSidebarWidget'
 import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
+import {
+  LayoutDashboard, TrendingUp, CheckSquare, Users, FolderKanban,
+  Mail, Calendar, FileText, BookOpen, FileSignature, Scale,
+  CreditCard, Receipt, Clock, HardDrive, Bot, DollarSign,
+  Handshake, Target, Star, MessageSquare, BarChart3, Shield,
+  Settings,
+} from 'lucide-react'
 
 const sidebarItems = [
-  { icon: '📊', label: 'Dashboard', href: '/dashboard' },
-  { icon: '📊', label: 'Pipeline', href: '/dashboard/pipeline' },
-  { icon: '📋', label: 'Tareas', href: '/dashboard/tasks' },
-  { icon: '👥', label: 'Clientes', href: '/dashboard/clients' },
-  { icon: '📁', label: 'Proyectos', href: '/dashboard/projects' },
-  { icon: '✉️', label: 'Correo', href: '/dashboard/email' },
-  { icon: '🗓️', label: 'Calendario', href: '/dashboard/calendar' },
-  { icon: '📝', label: 'Notas', href: '/dashboard/notes' },
-  { icon: '📓', label: 'Diario', href: '/dashboard/journal' },
-  { icon: '📄', label: 'Propuestas', href: '/dashboard/proposals' },
-  { icon: '⚖️', label: 'Contratos', href: '/dashboard/contracts' },
-  { icon: '💳', label: 'Gastos', href: '/dashboard/expenses' },
-  { icon: '💰', label: 'Facturas', href: '/dashboard/invoices' },
-  { icon: '⏱️', label: 'Tiempo', href: '/dashboard/time' },
-  { icon: '💾', label: 'Archivos', href: '/dashboard/files' },
-  { icon: '🤖', label: 'AI Tools', href: '/dashboard/ai' },
-  { icon: '💰', label: 'Tax Dashboard', href: '/dashboard/tax' },
-  { icon: '🤝', label: 'Afiliados', href: '/dashboard/affiliate' },
-  { icon: '🎯', label: 'Metas', href: '/dashboard/goals' },
-  { icon: '⭐', label: 'Testimonios', href: '/dashboard/testimonials' },
-  { icon: '💬', label: 'Feedback', href: '/dashboard/feedback' },
-  { icon: '📊', label: 'Analíticas', href: '/dashboard/analytics' },
-  { icon: '📊', label: 'Admin', href: '/dashboard/admin', adminOnly: true },
-  { icon: '⚙️', label: 'Configuración', href: '/dashboard/settings' },
+  { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+  { icon: TrendingUp, label: 'Pipeline', href: '/dashboard/pipeline' },
+  { icon: CheckSquare, label: 'Tareas', href: '/dashboard/tasks' },
+  { icon: Users, label: 'Clientes', href: '/dashboard/clients' },
+  { icon: FolderKanban, label: 'Proyectos', href: '/dashboard/projects' },
+  { icon: Mail, label: 'Correo', href: '/dashboard/email' },
+  { icon: Calendar, label: 'Calendario', href: '/dashboard/calendar' },
+  { icon: FileText, label: 'Notas', href: '/dashboard/notes' },
+  { icon: BookOpen, label: 'Diario', href: '/dashboard/journal' },
+  { icon: FileSignature, label: 'Propuestas', href: '/dashboard/proposals' },
+  { icon: Scale, label: 'Contratos', href: '/dashboard/contracts' },
+  { icon: CreditCard, label: 'Gastos', href: '/dashboard/expenses' },
+  { icon: Receipt, label: 'Facturas', href: '/dashboard/invoices' },
+  { icon: Clock, label: 'Tiempo', href: '/dashboard/time' },
+  { icon: HardDrive, label: 'Archivos', href: '/dashboard/files' },
+  { icon: Bot, label: 'AI Tools', href: '/dashboard/ai' },
+  { icon: DollarSign, label: 'Tax Dashboard', href: '/dashboard/tax' },
+  { icon: Handshake, label: 'Afiliados', href: '/dashboard/affiliate' },
+  { icon: Target, label: 'Metas', href: '/dashboard/goals' },
+  { icon: Star, label: 'Testimonios', href: '/dashboard/testimonials' },
+  { icon: MessageSquare, label: 'Feedback', href: '/dashboard/feedback' },
+  { icon: BarChart3, label: 'Analíticas', href: '/dashboard/analytics' },
+  { icon: Shield, label: 'Admin', href: '/dashboard/admin', adminOnly: true },
+  { icon: Settings, label: 'Configuración', href: '/dashboard/settings' },
 ]
 
 export default function DashboardLayout({ children }) {
@@ -106,9 +113,8 @@ export default function DashboardLayout({ children }) {
                 key={item.href}
                 href={item.href}
                 className={`sidebar-link text-sm ${pathname === item.href ? 'sidebar-link-active' : ''}`}
-                onClick={() => setSidebarOpen(false)}
-              >
-                <span className="text-base">{item.icon}</span>
+                >
+                  <item.icon className="w-4 h-4 shrink-0" />
                 {item.label}
               </Link>
             ))}
@@ -118,7 +124,8 @@ export default function DashboardLayout({ children }) {
 
           <div className="border-t border-white/10 mt-6 pt-4 px-3">
             <button onClick={handleLogout} className="sidebar-link w-full text-slate-400 hover:text-red-400 text-sm">
-              🚪 Cerrar Sesión
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+              Cerrar Sesión
             </button>
           </div>
         </div>

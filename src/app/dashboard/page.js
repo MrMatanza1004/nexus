@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import AffiliateDashboardCard from '@/components/AffiliateDashboardCard'
 import Link from 'next/link'
+import { Users, FolderKanban, DollarSign, Clock, UserPlus, FileSignature, CheckSquare, Receipt } from 'lucide-react'
 
 export default function DashboardHome() {
   const [user, setUser] = useState(null)
@@ -18,9 +19,9 @@ export default function DashboardHome() {
       supabase.auth.getUser().then(({ data }) => {
         setUser(data?.user ?? null)
         const h = new Date().getHours()
-        if (h < 12) setGreeting('Buenos días ☀️')
-        else if (h < 18) setGreeting('Buenas tardes 🌤️')
-        else setGreeting('Buenas noches 🌙')
+        if (h < 12) setGreeting('Buenos días')
+        else if (h < 18) setGreeting('Buenas tardes')
+        else setGreeting('Buenas noches')
       })
     } catch {
       setUser(null)
@@ -91,38 +92,38 @@ export default function DashboardHome() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: 'Clientes', value: stats.clients, icon: '👥', color: 'violet', href: '/dashboard/clients' },
-          { label: 'Proyectos', value: stats.projects, icon: '📁', color: 'emerald', href: '/dashboard/projects' },
-          { label: 'Facturado', value: formatCurrency(stats.invoicesTotal), icon: '💰', color: 'amber', href: '/dashboard/invoices' },
-          { label: 'Pendientes', value: stats.invoicesPending, icon: '⏳', color: 'rose', href: '/dashboard/invoices' },
-        ].map((s, i) => (
-          <Link key={i} href={s.href} className="card p-4 sm:p-6 card-hover">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-2xl">{s.icon}</span>
-              <span className="text-3xl font-bold text-slate-900">{s.value}</span>
-            </div>
-            <p className="text-slate-500 text-sm font-medium">{s.label}</p>
-          </Link>
-        ))}
+          {[
+            { label: 'Clientes', value: stats.clients, icon: Users, color: 'violet', href: '/dashboard/clients' },
+            { label: 'Proyectos', value: stats.projects, icon: FolderKanban, color: 'emerald', href: '/dashboard/projects' },
+            { label: 'Facturado', value: formatCurrency(stats.invoicesTotal), icon: DollarSign, color: 'amber', href: '/dashboard/invoices' },
+            { label: 'Pendientes', value: stats.invoicesPending, icon: Clock, color: 'rose', href: '/dashboard/invoices' },
+          ].map((s, i) => (
+            <Link key={i} href={s.href} className="card p-4 sm:p-6 card-hover">
+              <div className="flex items-center justify-between mb-3">
+                <s.icon className="w-5 h-5 text-slate-400" />
+                <span className="text-3xl font-bold text-slate-900">{s.value}</span>
+              </div>
+              <p className="text-slate-500 text-sm font-medium">{s.label}</p>
+            </Link>
+          ))}
       </div>
 
       {/* Quick Actions */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { icon: '👤', label: 'Nuevo Cliente', href: '/dashboard/clients', color: 'violet' },
-          { icon: '📄', label: 'Nueva Propuesta', href: '/dashboard/proposals', color: 'emerald' },
-          { icon: '📋', label: 'Nueva Tarea', href: '/dashboard/tasks', color: 'amber' },
-          { icon: '💰', label: 'Nueva Factura', href: '/dashboard/invoices', color: 'blue' },
-        ].map((action, i) => (
-          <Link key={i} href={action.href} className="card p-4 flex items-center gap-3 card-hover">
-            <div className={`w-10 h-10 rounded-lg bg-${action.color}-100 flex items-center justify-center text-xl`}>
-              {action.icon}
-            </div>
-            <span className="font-medium text-slate-900">{action.label}</span>
-            <span className="ml-auto text-slate-400">→</span>
-          </Link>
-        ))}
+          {[
+            { icon: UserPlus, label: 'Nuevo Cliente', href: '/dashboard/clients', bg: 'bg-violet-100', iconColor: 'text-violet-600' },
+            { icon: FileSignature, label: 'Nueva Propuesta', href: '/dashboard/proposals', bg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
+            { icon: CheckSquare, label: 'Nueva Tarea', href: '/dashboard/tasks', bg: 'bg-amber-100', iconColor: 'text-amber-600' },
+            { icon: Receipt, label: 'Nueva Factura', href: '/dashboard/invoices', bg: 'bg-blue-100', iconColor: 'text-blue-600' },
+          ].map((action, i) => (
+            <Link key={i} href={action.href} className="card p-4 flex items-center gap-3 card-hover">
+              <div className={`w-10 h-10 rounded-lg ${action.bg} flex items-center justify-center`}>
+                <action.icon className={`w-5 h-5 ${action.iconColor}`} />
+              </div>
+              <span className="font-medium text-slate-900">{action.label}</span>
+              <span className="ml-auto text-slate-400">→</span>
+            </Link>
+          ))}
       </div>
 
       {/* Recent items */}
@@ -160,7 +161,7 @@ export default function DashboardHome() {
             <Link href="/dashboard/tasks" className="text-sm text-violet-600 font-medium hover:text-violet-700">Ver todas →</Link>
           </div>
           {recentTasks.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">No tenés tareas pendientes. Bien ahí 🎉</p>
+            <p className="text-slate-400 text-center py-8">No tenés tareas pendientes. Todo al día.</p>
           ) : (
             <div className="space-y-3">
               {recentTasks.map(task => (
