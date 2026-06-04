@@ -31,12 +31,12 @@ const painPoints = [
   {
     icon: 'Shield', problem: 'Trabajas sin contrato',
     solution: 'Contratos con validez legal generados por IA en 2 minutos.',
-    img: 'photo-1586281380349-0b7d5c5e5c9f',
+    img: 'photo-1589829545856-d10d557cf95f',
   },
   {
     icon: 'FolderOpen', problem: 'Archivos perdidos',
     solution: 'File Vault organizado por cliente con integracion Google Drive.',
-    img: 'photo-1497366812374-5e3c0a8b7d6e',
+    img: 'photo-1531403009284-440f080d1e12',
   },
   {
     icon: 'DollarSign', problem: 'No cobras a tiempo',
@@ -117,7 +117,7 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-violet-600/10 rounded-2xl blur-2xl" />
                 <img
-                  src="https://images.unsplash.com/photo-1497366216548-2ba5f7a6c6b1?w=1200&q=80&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80&auto=format&fit=crop"
                   alt="NEXUS dashboard preview"
                   className="relative rounded-xl border border-zinc-800 shadow-2xl w-full h-auto"
                   loading="eager"
