@@ -84,6 +84,74 @@ export function invoiceReminderEmail(invoiceNumber, amount, dueDate) {
   }
 }
 
+export function affiliateInviteEmail({ affiliateName, affiliateLink, clientName, clientEmail }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'
+  return {
+    subject: `${affiliateName} te invita a NEXUS — Gestioná tu freelance como un profesional`,
+    html: `<table cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;margin:0 auto;font-family:Inter,Arial,sans-serif;background:#0a0a0f;border-radius:16px;overflow:hidden">
+  <tr>
+    <td style="background:linear-gradient(135deg,#7c3aed,#a78bfa);padding:36px 32px 32px;text-align:center">
+      <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h1 style="color:#fff;font-size:22px;font-weight:700;margin:0 0 4px;letter-spacing:-0.3px">Te invitaron a NEXUS</h1>
+      <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0">Un ecosistema completo para freelancers</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:36px 32px;background:#fff">
+      <p style="color:#1e293b;font-size:16px;line-height:1.6;margin:0 0 8px">
+        Hola${clientName ? ` ${clientName}` : ''},
+      </p>
+      <p style="color:#475569;font-size:15px;line-height:1.6;margin:0 0 20px">
+        <strong style="color:#1e293b">${affiliateName}</strong> te invita a sumarte a <strong style="color:#7c3aed">NEXUS</strong>, el sistema operativo que usan miles de freelancers para gestionar su negocio.
+      </p>
+
+      <table style="width:100%;border-collapse:collapse;margin:0 0 24px">
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:24px;color:#7c3aed;font-size:16px">✦</td>
+          <td style="padding:8px 0;color:#475569;font-size:14px;line-height:1.5">Dashboard con métricas en tiempo real de ingresos, gastos y ganancias</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:24px;color:#7c3aed;font-size:16px">✦</td>
+          <td style="padding:8px 0;color:#475569;font-size:14px;line-height:1.5">Facturas con link de pago Stripe — cobrá al instante</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:24px;color:#7c3aed;font-size:16px">✦</td>
+          <td style="padding:8px 0;color:#475569;font-size:14px;line-height:1.5">Contratos con validez legal generados por IA en segundos</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:24px;color:#7c3aed;font-size:16px">✦</td>
+          <td style="padding:8px 0;color:#475569;font-size:14px;line-height:1.5">Propuestas profesionales que convierten 2x más</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:24px;color:#7c3aed;font-size:16px">✦</td>
+          <td style="padding:8px 0;color:#475569;font-size:14px;line-height:1.5">Portal de cliente — ellos ven propuestas, contratos y facturas</td>
+        </tr>
+      </table>
+
+      <div style="background:#f5f3ff;border:1px solid #e0d4fc;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center">
+        <p style="font-size:13px;color:#6b7280;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.5px">Link de invitación</p>
+        <a href="${affiliateLink}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:14px 36px;border-radius:10px;font-weight:700;font-size:16px">Unirme a NEXUS gratis →</a>
+        <p style="font-size:12px;color:#94a3b8;margin:10px 0 0">Sin compromiso • 7 días gratis • Cancelá cuando quieras</p>
+      </div>
+
+      <p style="color:#94a3b8;font-size:13px;line-height:1.5;margin:0;text-align:center">
+        ¿Preguntas? Escribile a ${affiliateName} o respondé este correo.
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background:#f8fafc;padding:24px 32px;text-align:center;border-top:1px solid #e2e8f0">
+      <p style="color:#94a3b8;font-size:12px;margin:0 0 4px">NEXUS — El Sistema Operativo Freelance</p>
+      <p style="color:#cbd5e1;font-size:11px;margin:0">Si no pediste esta invitación, ignorá este correo.</p>
+    </td>
+  </tr>
+</table>`,
+  }
+}
+
+
 // ═══════════════════════════════════════════
 // EMAIL MARKETING — Trial Sequence (7 days)
 // ═══════════════════════════════════════════

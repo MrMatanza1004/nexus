@@ -12,6 +12,7 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [portalLoading, setPortalLoading] = useState(null)
+  const [affiliateLoading, setAffiliateLoading] = useState(null)
 
   useEffect(() => { loadClients() }, [])
 
@@ -68,6 +69,19 @@ export default function ClientsPage() {
     toast.success('Link copiado al portapapeles! Enviáselo a tu cliente.')
     setClients(clients.map(c => c.id === clientId ? { ...c, portal_token: data.url.split('/').pop(), portal_active: true } : c))
     setPortalLoading(null)
+  }
+
+  async function inviteAffiliate(clientId) {
+    setAffiliateLoading(clientId)
+    const res = await fetch('/api/affiliate/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId }),
+    })
+    const data = await res.json()
+    if (data.error) return toast.error(data.error)
+    toast.success('Invitación de afiliado enviada!')
+    setAffiliateLoading(null)
   }
 
   const filtered = clients.filter(c =>
@@ -139,7 +153,7 @@ export default function ClientsPage() {
               {client.phone && <p className="text-sm text-slate-600 mb-1">📞 {client.phone}</p>}
               {client.notes && <p className="text-sm text-slate-500 mt-2 italic line-clamp-2">{client.notes}</p>}
               <p className="text-xs text-slate-400 mt-3">Creado {formatDate(client.created_at)}</p>
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-2 mt-3 flex-wrap">
                 {client.portal_active ? (
                   <span className="badge-success text-xs">🔗 Portal activo</span>
                 ) : (
@@ -149,6 +163,19 @@ export default function ClientsPage() {
                     className="text-xs bg-violet-100 text-violet-700 px-3 py-1 rounded-full hover:bg-violet-200 transition-all font-medium"
                   >
                     {portalLoading === client.id ? '...' : '🔗 Invitar al Portal'}
+                  </button>
+                )}
+                {client.email && (
+                  <button
+                    onClick={() => inviteAffiliate(client.id)}
+                    disabled={affiliateLoading === client.id}
+                    className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full hover:bg-emerald-200 transition-all font-medium"
+                  >
+                    {affiliateLoading === client.id ? (
+                      <span className="inline-flex items-center gap-1"><svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Enviando...</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1"><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Invitar como afiliado</span>
+                    )}
                   </button>
                 )}
               </div>
