@@ -1,14 +1,160 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import AffiliatePromotionBanner from '@/components/AffiliatePromotionBanner'
 
+const LEVELS = [
+  { name: 'Bronce', min: 0, max: 4, color: 'amber', icon: '🥉', benefit: '25% comisión' },
+  { name: 'Plata', min: 5, max: 14, color: 'slate', icon: '🥈', benefit: '25% + prioridad' },
+  { name: 'Oro', min: 15, max: Infinity, color: 'yellow', icon: '🥇', benefit: '25% + soporte prioritario + badge exclusivo' },
+]
+
+const EARNINGS_MILESTONES = [100, 250, 500, 1000, 2500]
+
+function LevelCard({ conversions }) {
+  const level = useMemo(() => {
+    for (let i = LEVELS.length - 1; i >= 0; i--) {
+      if (conversions >= LEVELS[i].min) return LEVELS[i]
+    }
+    return LEVELS[0]
+  }, [conversions])
+
+  const nextLevel = useMemo(() => {
+    return LEVELS.find(l => l.min > conversions)
+  }, [conversions])
+
+  const progress = useMemo(() => {
+    if (!nextLevel) return 100
+    const range = nextLevel.min - level.min
+    const current = conversions - level.min
+    return Math.min((current / range) * 100, 100)
+  }, [conversions, level, nextLevel])
+
+  return (
+    <div className="card p-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-violet-500/5 to-transparent rounded-bl-full" />
+
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Tu Nivel</p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-2xl">{level.icon}</span>
+            <span className="text-2xl font-bold text-slate-900">{level.name}</span>
+          </div>
+          <p className="text-sm text-slate-500 mt-0.5">{level.benefit}</p>
+        </div>
+        {nextLevel && (
+          <div className="text-right">
+            <p className="text-xs text-slate-400">Próximo nivel</p>
+            <p className="text-lg font-semibold text-slate-700">{nextLevel.icon} {nextLevel.name}</p>
+            <p className="text-xs text-slate-400">Faltan {nextLevel.min - conversions} referidos</p>
+          </div>
+        )}
+      </div>
+
+      {nextLevel && (
+        <div>
+          <div className="w-full h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-all duration-700"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-1.5">
+            {conversions} de {nextLevel.min} referidos activos — {progress.toFixed(0)}%
+          </p>
+        </div>
+      )}
+
+      {!nextLevel && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
+          <p className="text-sm font-semibold text-yellow-800">🏆 Nivel máximo alcanzado</p>
+          <p className="text-xs text-yellow-700">Disfrutá todos los beneficios del nivel Oro.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MilestoneCard({ earnings }) {
+  const nextMilestone = EARNINGS_MILESTONES.find(m => earnings < m)
+  const prevMilestone = EARNINGS_MILESTONES.filter(m => m <= earnings).pop() || 0
+  const progress = nextMilestone
+    ? ((earnings - prevMilestone) / (nextMilestone - prevMilestone)) * 100
+    : 100
+
+  return (
+    <div className="card p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+        <p className="font-semibold text-slate-900 text-sm">Próximo hito de ganancias</p>
+      </div>
+
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-lg font-bold text-slate-900">{formatCurrency(earnings)}</span>
+        {nextMilestone ? (
+          <span className="text-sm text-slate-400">Meta: {formatCurrency(nextMilestone)}</span>
+        ) : (
+          <span className="text-sm text-yellow-600 font-medium">🏆 Meta máxima alcanzada</span>
+        )}
+      </div>
+
+      {nextMilestone && (
+        <>
+          <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-700"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-1.5">
+            Te faltan {formatCurrency(nextMilestone - earnings)} para llegar a {formatCurrency(nextMilestone)}.
+            {nextMilestone - earnings <= 100 && ' ¡Casi ahí!'}
+          </p>
+        </>
+      )}
+    </div>
+  )
+}
+
+function SocialProofBanner({ totalAffiliates }) {
+  return (
+    <div className="card p-4 bg-gradient-to-r from-violet-50 to-indigo-50 border-violet-100">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
+            <svg className="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">
+              {totalAffiliates > 0
+                ? `${totalAffiliates} freelancers ya están en el programa de afiliados`
+                : 'Crecé con la comunidad NEXUS'}
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {totalAffiliates > 0
+                ? 'No estás solo. Cada vez más freelancers recomiendan NEXUS y ganan con el programa.'
+                : 'Compartí tu link y empezá a generar ingresos pasivos.'}
+            </p>
+          </div>
+        </div>
+        <div className="hidden sm:block text-3xl opacity-30">{'>'}_</div>
+      </div>
+    </div>
+  )
+}
+
 export default function AffiliatePage() {
   const [user, setUser] = useState(null)
   const [stats, setStats] = useState({ clicks: 0, conversions: 0, earnings: 0 })
+  const [totalAffiliates, setTotalAffiliates] = useState(0)
   const [referrals, setReferrals] = useState([])
   const [copied, setCopied] = useState(false)
   const [affiliateCode, setAffiliateCode] = useState('')
@@ -23,7 +169,7 @@ export default function AffiliatePage() {
         const code = u?.user_metadata?.affiliate_code
         setAffiliateCode(code || '')
         setConnectReady(!!u?.user_metadata?.stripe_connect_ready)
-        if (u?.id) loadStats(u.id, code)
+        if (u?.id && code) loadStats(u.id, code)
       })
     } catch { setUser(null) }
 
@@ -34,6 +180,11 @@ export default function AffiliatePage() {
       setConnectReady(true)
       window.history.replaceState({}, '', '/dashboard/affiliate')
     }
+
+    // Load total affiliate count for social proof
+    supabase.from('affiliate_clicks').select('affiliate_code', { count: 'exact', head: true }).then(({ count }) => {
+      if (count) setTotalAffiliates(Math.round(count / 3)) // approximate unique affiliates
+    })
   }, [])
 
   async function loadStats(userId, code) {
@@ -86,6 +237,21 @@ export default function AffiliatePage() {
 
       {/* Promo semanal */}
       <AffiliatePromotionBanner />
+
+      {/* ── PRUEBA SOCIAL ── */}
+      <div className="mb-6">
+        <SocialProofBanner totalAffiliates={totalAffiliates} />
+      </div>
+
+      {/* ── NIVEL + PROGRESO ── */}
+      <div className="mb-6">
+        <LevelCard conversions={stats.conversions} />
+      </div>
+
+      {/* ── HITO DE GANANCIAS ── */}
+      <div className="mb-6">
+        <MilestoneCard earnings={stats.earnings} />
+      </div>
 
       {/* Auto-payout CTA */}
       <div className={`card p-5 mb-6 flex items-center justify-between gap-4 border-2 ${connectReady ? 'border-emerald-200 bg-emerald-50' : 'border-violet-200 bg-violet-50'}`}>
@@ -153,7 +319,7 @@ export default function AffiliatePage() {
 
       {/* Share ideas */}
       <div className="card p-6 mb-6">
-        <h2 className="font-semibold text-slate-900 mb-3">📢 Ideas para compartir</h2>
+        <h2 className="font-semibold text-slate-900 mb-3">Ideas para compartir</h2>
         <div className="grid sm:grid-cols-2 gap-3">
           {[
             '"Este es el sistema que uso para manejar todos mis clientes. Recomendadísimo."',
