@@ -4,18 +4,66 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAffiliate } from '@/hooks/useAffiliate'
 import toast from 'react-hot-toast'
-import { Handshake, Copy, ExternalLink, Users, DollarSign, TrendingUp } from 'lucide-react'
+import { Handshake, Copy, ExternalLink, Users, DollarSign, TrendingUp, Clock, UserPlus } from 'lucide-react'
+
+function useCountdown(targetMs) {
+  const [remaining, setRemaining] = useState(null)
+
+  useEffect(() => {
+    if (!targetMs) return
+
+    function tick() {
+      const diff = targetMs - Date.now()
+      if (diff <= 0) { setRemaining(0); return }
+      setRemaining(diff)
+    }
+
+    tick()
+    const interval = setInterval(tick, 1000)
+    return () => clearInterval(interval)
+  }, [targetMs])
+
+  return remaining
+}
+
+function formatCountdownShort(ms) {
+  if (ms === null) return null
+  if (ms <= 0) return null
+
+  const totalSec = Math.floor(ms / 1000)
+  const hours = Math.floor(totalSec / 3600)
+  const minutes = Math.floor((totalSec % 3600) / 60)
+  const secs = totalSec % 60
+
+  if (hours > 24) return `${Math.floor(hours / 24)}d ${hours % 24}h`
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}m ${secs}s`
+}
 
 export default function AffiliateDashboardCard() {
   const { code, link, totalReferrals, monthlyEarnings, totalEarnings, activeReferrals, loading, copyLink } = useAffiliate()
   const [copied, setCopied] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [promo, setPromo] = useState(null)
 
   useEffect(() => {
     if (dismissed) return
-    const timer = setTimeout(() => setDismissed(true), 30000)
+    const timer = setTimeout(() => setDismissed(true), 35000)
     return () => clearTimeout(timer)
   }, [dismissed])
+
+  // Fetch current promotion stats
+  useEffect(() => {
+    fetch('/api/affiliate/promotions')
+      .then(r => r.json())
+      .then(data => { if (data && data.title) setPromo(data) })
+      .catch(() => {})
+  }, [])
+
+  const countdown = useCountdown(promo?.endsAt)
+  const slotsLeft = promo?.slotsRemaining ?? 0
+  const isLowStock = slotsLeft <= 10 && slotsLeft > 0
+  const isExpiring = countdown !== null && countdown > 0 && countdown < 86400000
 
   async function handleCopy() {
     const ok = await copyLink()
@@ -53,6 +101,44 @@ export default function AffiliateDashboardCard() {
             <p className="text-xs text-slate-500">Ganá 25% recurrente por cada referral</p>
           </div>
         </div>
+
+        {/* Urgency banner - real data */}
+        {promo && (
+          <div className={`rounded-lg p-3 mb-4 border ${isExpiring || isLowStock ? 'bg-red-50 border-red-200' : 'bg-violet-50 border-violet-200'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-base shrink-0">
+                  {isExpiring ? '⏰' : isLowStock ? '⚡' : '🔥'}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-900 truncate">{promo.title}</p>
+                  <p className="text-xs text-slate-500">{promo.desc}</p>
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                {countdown !== null && countdown > 0 && (
+                  <span className={`text-xs font-mono font-bold ${isExpiring ? 'text-red-600' : 'text-violet-600'}`}>
+                    {formatCountdownShort(countdown)}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              {countdown !== null && countdown > 0 && (
+                <span className={`text-xs font-semibold flex items-center gap-1 ${isExpiring ? 'text-red-500' : 'text-slate-500'}`}>
+                  <Clock className="w-3 h-3" />
+                  {isExpiring ? 'Termina pronto' : `${formatCountdownShort(countdown)} restantes`}
+                </span>
+              )}
+              {slotsLeft > 0 && (
+                <span className={`text-xs font-semibold flex items-center gap-1 ${isLowStock ? 'text-orange-500' : 'text-slate-500'}`}>
+                  <UserPlus className="w-3 h-3" />
+                  {isLowStock ? `Solo quedan ${slotsLeft} cupos` : `${slotsLeft} cupos disponibles`}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-violet-50 rounded-lg p-3 text-center">
