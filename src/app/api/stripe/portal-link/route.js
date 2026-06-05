@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { getAppUrl } from '@/lib/urls'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,7 @@ export async function POST(req) {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: returnUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/settings`,
+      return_url: returnUrl || `${getAppUrl()}/dashboard/settings`,
     })
 
     return NextResponse.json({ url: session.url })

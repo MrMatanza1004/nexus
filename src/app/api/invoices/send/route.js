@@ -106,7 +106,7 @@ export async function POST(req) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'NEXUS <facturas@ionexus.pro>',
+        from: process.env.EMAIL_FROM || 'NEXUS <facturas@ionexus.pro>',
         to: [invoice.clients.email],
         subject: `Factura #${invoice.number} — ${invoice.clients.name}`,
         html,

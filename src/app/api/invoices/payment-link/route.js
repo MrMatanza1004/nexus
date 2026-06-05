@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { getAppUrl } from '@/lib/urls'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +50,7 @@ export async function POST(req) {
         'line_items[0][price_data][unit_amount]': String(amountInCents),
         'line_items[0][quantity]': '1',
         'after_completion[type]': 'redirect',
-        'after_completion[redirect][url]': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/invoices?paid=${id}`,
+        'after_completion[redirect][url]': `${getAppUrl()}/dashboard/invoices?paid=${id}`,
       }),
     })
 

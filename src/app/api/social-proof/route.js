@@ -30,19 +30,18 @@ export async function GET() {
     const totalInvoiced = invoices?.reduce((s, i) => s + Number(i.amount || 0), 0) || 0
 
     return NextResponse.json({
-      activeUsers: activeUsers || 1247,
-      proposals: proposals || 12500,
-      totalInvoiced: totalInvoiced || 4200000,
+      activeUsers: activeUsers ?? 0,
+      proposals: proposals ?? 0,
+      totalInvoiced: totalInvoiced ?? 0,
       timestamp: new Date().toISOString(),
     }, {
       headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=600' },
     })
   } catch (err) {
-    return NextResponse.json({
-      activeUsers: 1247,
-      proposals: 12500,
-      totalInvoiced: 4200000,
-      timestamp: new Date().toISOString(),
-    })
+    console.error('Social proof error:', err.message)
+    return NextResponse.json(
+      { error: 'Social proof temporarily unavailable' },
+      { status: 503 }
+    )
   }
 }

@@ -7,7 +7,9 @@ export async function GET(request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
   const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
-  const appUrl = 'https://ionexus.pro'
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || process.env.NEXT_PUBLIC_APP_URL
+    || 'https://ionexus.pro'
 
   try {
     if (code) {

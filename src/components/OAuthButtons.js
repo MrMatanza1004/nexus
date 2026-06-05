@@ -33,10 +33,13 @@ export default function OAuthButtons() {
   async function handleOAuthSignIn(provider) {
     setLoading(provider)
     try {
+      const redirectTo = process.env.NEXT_PUBLIC_SITE_URL
+        || process.env.NEXT_PUBLIC_APP_URL
+        || window.location.origin
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: 'https://ionexus.pro/auth/callback',
+          redirectTo: `${redirectTo.replace(/\/$/, '')}/auth/callback`,
         },
       })
       if (error) {

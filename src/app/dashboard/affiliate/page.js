@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import { getAffiliateLink } from '@/lib/urls'
 import AffiliatePromotionBanner from '@/components/AffiliatePromotionBanner'
 
 const LEVELS = [
@@ -218,7 +219,7 @@ export default function AffiliatePage() {
   }
 
   const affiliateLink = affiliateCode
-    ? `https://ionexus.pro/api/affiliate/track?code=${affiliateCode}&landing=/register`
+    ? getAffiliateLink(affiliateCode)
     : ''
 
   function copyLink() {

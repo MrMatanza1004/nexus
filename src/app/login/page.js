@@ -50,7 +50,12 @@ export default function LoginPage() {
       error = { message: 'Error de conexión con el servidor de autenticación' }
     }
     if (error) {
-      toast.error(error.message)
+      // If email sending failed, offer fallback
+      if (error.message?.toLowerCase().includes('email') || error.message?.toLowerCase().includes('send')) {
+        toast.error('No pudimos enviar el email. Usá tu contraseña para iniciar sesión o creá una cuenta nueva.')
+      } else {
+        toast.error(error.message)
+      }
     } else {
       toast.success('Te enviamos un magic link a tu email')
     }

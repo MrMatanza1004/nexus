@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { getAppUrl } from '@/lib/urls'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,8 @@ export async function POST(req) {
     }
     const planType = PRICE_TO_PLAN[priceId] || 'pro'
 
+    const siteUrl = getAppUrl()
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -31,8 +34,8 @@ export async function POST(req) {
         planType,
         affiliateCode: affiliateCode || '',
       },
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?checkout=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing?checkout=canceled`,
+      success_url: `${siteUrl}/dashboard?checkout=success`,
+      cancel_url: `${siteUrl}/pricing?checkout=canceled`,
       subscription_data: {
         metadata: {
           userId,

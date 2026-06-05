@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getAffiliateLink } from '@/lib/urls'
 
 export function useAffiliate() {
   const [data, setData] = useState({
@@ -33,7 +34,7 @@ export function useAffiliate() {
         return
       }
 
-      const link = `https://ionexus.pro/api/affiliate/track?code=${code}&landing=/register`
+      const link = getAffiliateLink(code)
 
       // Get conversions
       const { data: conversions } = await supabase

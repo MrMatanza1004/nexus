@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { getGoogleDriveRedirectUri } from '@/lib/urls'
 
 async function createNexusFolder(accessToken) {
   const res = await fetch('https://www.googleapis.com/drive/v3/files', {
@@ -42,7 +43,7 @@ export async function GET(req) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET
-  const redirectUri = 'https://ionexus.pro/api/google-drive/callback'
+  const redirectUri = getGoogleDriveRedirectUri()
 
   if (!clientId) {
     return NextResponse.redirect(`${origin}${returnTo}?drive=error&drive_msg=${encodeURIComponent('Falta GOOGLE_CLIENT_ID')}`)

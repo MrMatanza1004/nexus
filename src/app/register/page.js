@@ -78,13 +78,22 @@ export default function RegisterPage() {
     if (error) {
       toast.error(error.message)
       setLoading(false)
+      // Even on error, the user might have been created (e.g. email failed)
+      // If we have a userId, try to auto-confirm
+      if (data?.user?.id) {
+        console.warn('SignUp had error but user was created:', error.message)
+        fetch('/api/auth/auto-confirm', {
+          method: 'POST',
+          body: JSON.stringify({ userId: data.user.id }),
+        }).catch(() => {})
+      }
       return
     }
 
     const userId = data?.user?.id
     if (!userId) {
-      console.error('Signup succeeded but no user returned:', data)
-      toast.success('Cuenta creada! Revisá tu email para confirmar.')
+      console.warn('Signup returned no user — may need email confirmation')
+      toast.success('Revisá tu email para confirmar tu cuenta.')
       setLoading(false)
       return
     }
@@ -98,13 +107,25 @@ export default function RegisterPage() {
       }).catch(() => {})
     }
 
-    // Auto-confirm user so they can sign in without email verification
-    fetch('/api/auth/auto-confirm', {
-      method: 'POST',
-      body: JSON.stringify({ userId }),
-    }).then(res => {
-      if (!res.ok) console.error('Auto-confirm failed:', res.status)
-    }).catch(err => console.error('Auto-confirm error:', err))
+    // Auto-confirm user synchronously so they CAN sign in
+    try {
+      const confirmRes = await fetch('/api/auth/auto-confirm', {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      })
+      if (!confirmRes.ok) {
+        const errData = await confirmRes.json().catch(() => ({}))
+        console.error('Auto-confirm failed:', confirmRes.status, errData)
+        toast.error('Error al confirmar cuenta. Contactá a soporte.')
+        setLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('Auto-confirm network error:', err)
+      toast.error('Error de conexión al confirmar cuenta.')
+      setLoading(false)
+      return
+    }
 
     toast.success('Cuenta creada! Ya podés iniciar sesión.')
     setLoading(false)

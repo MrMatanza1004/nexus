@@ -34,6 +34,7 @@ const sidebarGroups = [
       { icon: Clock, label: 'Tiempo', href: '/dashboard/time' },
       { icon: Mail, label: 'Correo', href: '/dashboard/email' },
       { icon: Calendar, label: 'Calendario', href: '/dashboard/calendar' },
+      { icon: MessageSquare, label: 'WhatsApp', href: '/dashboard/whatsapp' },
     ],
   },
   {

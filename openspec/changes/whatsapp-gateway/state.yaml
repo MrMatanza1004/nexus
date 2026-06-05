@@ -1,0 +1,17 @@
+# openspec/changes/whatsapp-gateway/state.yaml
+change: whatsapp-gateway
+created: 2026-06-04
+phases:
+  explore: completed
+  propose: completed
+  spec: completed
+  design: completed
+  tasks: completed
+  apply: completed
+  verify: completed
+  archive: pending
+stacked_prs:
+  pr1_foundation: completed
+  pr2_api_core: completed
+  pr3_bot_engine: completed
+  pr4_dashboard_ui: completed

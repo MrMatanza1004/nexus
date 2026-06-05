@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getGoogleDriveRedirectUri } from '@/lib/urls'
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url)
@@ -6,7 +7,7 @@ export async function GET(req) {
   const returnTo = searchParams.get('returnTo') || '/dashboard'
 
   const clientId = process.env.GOOGLE_CLIENT_ID
-  const redirectUri = 'https://ionexus.pro/api/google-drive/callback'
+  const redirectUri = getGoogleDriveRedirectUri()
 
   if (!clientId) {
     return NextResponse.json({ error: 'Google Client ID not configured', missingEnv: 'GOOGLE_CLIENT_ID' }, { status: 500 })

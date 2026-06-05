@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { sendEmail, affiliateInviteEmail } from '@/lib/email'
+import { getAffiliateLink } from '@/lib/urls'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,7 +55,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'El cliente no tiene email registrado' }, { status: 400 })
     }
 
-    const affiliateLink = `https://ionexus.pro/api/affiliate/track?code=${affiliateCode}&landing=/register`
+    const affiliateLink = getAffiliateLink(affiliateCode)
     const affiliateName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Un usuario'
 
     const email = affiliateInviteEmail({

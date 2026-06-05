@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { getAppUrl } from '@/lib/urls'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,8 +57,8 @@ export async function POST(req) {
     // Crear link de onboarding (si no completó o es nueva)
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/affiliate?connect=refresh`,
-      return_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ionexus.pro'}/dashboard/affiliate?connect=success`,
+      refresh_url: `${getAppUrl()}/dashboard/affiliate?connect=refresh`,
+      return_url: `${getAppUrl()}/dashboard/affiliate?connect=success`,
       type: 'account_onboarding',
     })
 

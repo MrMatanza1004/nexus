@@ -63,3 +63,8 @@ export const SOCIAL_PROOF_INTERVAL = 15000
 export const UPGRADE_STARTER_DAYS = 14   // Days on Starter before upgrade email
 export const UPGRADE_PRO_DAYS = 30        // Days on Pro before upgrade email
 export const TRIAL_SEQUENCE_DAYS = 7      // Days of daily trial emails
+
+// ─── WhatsApp ───
+export const WHATSAPP_EVENTS = ['message.received', 'message.ack', 'session.status', 'session.disconnected']
+export const BOT_COOLDOWN_SECONDS = 60
+export const QR_EXPIRY_SECONDS = 120
