@@ -128,9 +128,9 @@ export default function ProjectsPage() {
       ) : projects.length === 0 ? (
         <div className="card p-12 text-center"><svg className="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" /></svg><p className="text-slate-500">Todavía no hay proyectos</p></div>
       ) : viewMode === 'kanban' ? (
-        <div className="grid grid-cols-5 gap-3 overflow-x-auto pb-4">
+        <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-5">
           {statuses.map(status => (
-            <div key={status} className="min-w-[220px]">
+            <div key={status} className="min-w-[220px] snap-start sm:min-w-0">
               <div className="flex items-center justify-between mb-3 px-2">
                 <h3 className="font-semibold text-sm text-slate-700">{statusLabels[status]}</h3>
                 <span className="badge bg-slate-200 text-slate-600">{columns[status].length}</span>

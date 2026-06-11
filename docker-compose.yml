@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  openwa:
+    image: openwa/wa-automate:4.76.0
+    container_name: openwa
+    restart: unless-stopped
+    ports:
+      - "3000:3000"   # OpenWA Easy API port
+    environment:
+      - "OPENWA_MASTER_KEY=${OPENWA_MASTER_KEY}"   # must be set in .env or exported
+      - "SESSION_NAME=nexus_whatsapp"            # name of the WhatsApp session
+    volumes:
+      - openwa-data:/usr/src/app/.openwa   # persist session files (authentication)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api-docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  openwa-data:
+    driver: local

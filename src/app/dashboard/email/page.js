@@ -333,7 +333,7 @@ export default function EmailPage() {
             </div>
           ) : (
             /* Email items */
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden divide-y divide-slate-100">
               {emails.map(email => {
                 const name = extractName(email.from)
                 const emailAddr = extractEmail(email.from)

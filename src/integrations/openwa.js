@@ -6,8 +6,12 @@ let openwaClient = null
 
 export function getOpenwaClient() {
   if (!openwaClient) {
-    const baseUrl = process.env.OPENWA_BASE_URL
-    const masterKey = process.env.OPENWA_MASTER_KEY
+    // In production we require explicit configuration via environment variables.
+    // For local development we fall back to sensible defaults so you can test
+    // without having to create secret values.
+    const baseUrl = process.env.OPENWA_BASE_URL || (process.env.NODE_ENV !== 'production' ? 'http://localhost:3000' : undefined)
+    const masterKey = process.env.OPENWA_MASTER_KEY || (process.env.NODE_ENV !== 'production' ? 'dev-master-key' : undefined)
+    // If either value is still missing (production), return null to trigger a clear error.
     if (!baseUrl || !masterKey) return null
     openwaClient = new OpenwaClient(baseUrl, masterKey)
   }

@@ -607,13 +607,13 @@ export default function ExpensesPage() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="flex items-center gap-1.5">
-          <Filter size={14} className="text-slate-400" />
+      <div className="flex flex-wrap items-center gap-3 max-sm:gap-2 mb-4">
+        <div className="flex items-center gap-1.5 max-sm:gap-1">
+          <Filter size={14} className="text-slate-400 shrink-0" />
           <select
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
-            className="input-field !w-auto !py-2 !px-3 text-sm"
+            className="input-field !w-auto !py-2 !px-3 text-sm max-sm:text-xs"
           >
             <option value="">Todas las categorías</option>
             {CATEGORIES.map(c => (
@@ -622,26 +622,26 @@ export default function ExpensesPage() {
           </select>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <Calendar size={14} className="text-slate-400" />
+        <div className="flex items-center gap-1.5 max-sm:gap-1">
+          <Calendar size={14} className="text-slate-400 shrink-0" />
           <input
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="input-field !w-auto !py-2 !px-3 text-sm"
+            className="input-field !w-auto !py-2 !px-3 text-sm max-sm:text-xs"
             placeholder="Desde"
           />
-          <span className="text-slate-300 text-sm">—</span>
+          <span className="text-slate-300 text-sm max-sm:text-xs">—</span>
           <input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="input-field !w-auto !py-2 !px-3 text-sm"
+            className="input-field !w-auto !py-2 !px-3 text-sm max-sm:text-xs"
             placeholder="Hasta"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 ml-auto">
+        <div className="flex items-center gap-1.5 ml-auto max-sm:ml-0">
           <button
             onClick={() => toggleSort('date')}
             className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${

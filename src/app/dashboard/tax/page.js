@@ -101,7 +101,7 @@ export default function TaxPage() {
         ].map(s => (
           <div key={s.label} className={`card p-4 ${s.bg}`}>
             <p className="text-sm text-slate-500 mb-1">{s.label}</p>
-            <p className={`text-2xl font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
+            <p className={`text-2xl font-bold truncate ${s.color}`}>{formatCurrency(s.value)}</p>
           </div>
         ))}
       </div>

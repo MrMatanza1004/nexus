@@ -16,13 +16,13 @@ const STAGES = [
   { key: 'lost', label: 'Perdidos', color: 'bg-red-50', accent: 'bg-red-400' },
 ]
 
-function DropZone({ stage, leads, onMove }) {
+function DropZone({ stage, leads, onMove, className = '' }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.key })
 
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl p-3 min-w-[180px] transition-all ${stage.color} ${isOver ? 'ring-2 ring-violet-400 ring-offset-2 scale-[1.02]' : ''}`}
+      className={`${className} rounded-xl p-3 min-w-[180px] transition-all ${stage.color} ${isOver ? 'ring-2 ring-violet-400 ring-offset-2 scale-[1.02]' : ''}`}
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-slate-700">{stage.label}</h3>
@@ -214,9 +214,9 @@ export default function PipelinePage() {
         </div>
       ) : (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 overflow-x-auto pb-4">
+          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-3 lg:grid-cols-7">
             {STAGES.map(stage => (
-              <DropZone key={stage.key} stage={stage} leads={grouped[stage.key] || []} onMove={moveLead} />
+              <DropZone key={stage.key} stage={stage} leads={grouped[stage.key] || []} onMove={moveLead} className="min-w-[240px] snap-start md:min-w-0" />
             ))}
           </div>
           <DragOverlay>

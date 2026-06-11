@@ -726,7 +726,7 @@ export default function InvoicesPage() {
               </div>
 
               {/* Actions row */}
-              <div className="flex items-center gap-0.5 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-0.5 pt-2 border-t border-slate-100 overflow-x-auto scrollbar-none">
                 {inv.status !== 'paid' && inv.status !== 'cancelled' && (
                   <button
                     onClick={() => {
